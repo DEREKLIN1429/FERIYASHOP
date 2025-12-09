@@ -85,19 +85,28 @@
             width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
         }
         .header-btn:hover { background: #e9ecef; }
-        .header-title h2 { margin: 0; font-size: 1.8rem; font-weight: 800; text-align: center;}
+        
+        /* 【修正】加大標題字體 */
+        .header-title h2 { margin: 0; font-size: 2.5rem; font-weight: 900; text-align: center; color: #222; }
         .author-header { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
 
-        /* --- New 5 Photos Grid Layout --- */
+        /* --- 【修正】5 Photos Layout (1 Big + 4 Small) --- */
         .photo-grid-5 {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 手機版一行3個，第二行2個 */
+            grid-template-columns: 1fr 1fr; /* 兩欄 */
             gap: 10px;
             justify-content: center;
         }
         
+        /* 第一張照片 (Index 0) - 跨兩欄，高度較高 */
+        .photo-slot:nth-child(1) {
+            grid-column: span 2;
+            height: 280px; 
+            aspect-ratio: auto; /* 取消原本的正方形限制 */
+        }
+
+        /* 其他四張照片 - 保持正方形或固定高度 */
         .photo-slot {
-            aspect-ratio: 1/1; /* 正方形框框 */
             background-color: #f0f0f0;
             border: 2px dashed #ccc;
             border-radius: 10px;
@@ -108,6 +117,7 @@
             overflow: hidden;
             position: relative;
             transition: border-color 0.2s;
+            height: 140px; /* 小圖高度 */
         }
         .photo-slot:active { background-color: #e0e0e0; border-color: var(--primary-color); }
         
@@ -130,7 +140,7 @@
         
         .form-input { 
             width: 100%; 
-            padding: 10px;           
+            padding: 10px;            
             font-size: 1.3rem;       
             height: 60px;            
             border: 2px solid #ccc; 
@@ -143,7 +153,7 @@
         /* --- BIGGER Note --- */
         textarea { 
             width: 100%; 
-            height: 150px;           
+            height: 150px;            
             padding: 15px; 
             border: 2px solid #eee; border-radius: 10px; 
             font-size: 1.3rem;       
@@ -155,7 +165,7 @@
         .lang-timer-container { display: flex; justify-content: space-between; align-items: center; padding: 0 5px;}
         .small-select { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1rem; background: white; }
         
-        /* --- 底部按鈕區塊 (修正版) --- */
+        /* --- 底部按鈕區塊 --- */
         .footer-btns-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; /* 2欄 */
@@ -166,34 +176,26 @@
         
         .btn-footer { 
             width: 100%;
-            /* 修正：移除強制正方形，改為固定高度 */
             height: 80px; 
-            
             border: none; 
             border-radius: 16px; 
-            
-            /* 修正：字體加大，並確保內容不溢出 */
             font-size: 1.5rem; 
             font-weight: bold; 
-            
             cursor: pointer; 
             color: white; 
             display: flex; 
-            flex-direction: row; /* 改為橫向排列圖示與文字，節省垂直空間 */
+            flex-direction: row; 
             align-items: center; 
             justify-content: center; 
             gap: 10px; 
             text-align: center; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            
-            /* 防止溢出 */
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
             padding: 0 10px;
         }
 
-        /* 手機版字體微調 */
         @media (max-width: 400px) {
             .btn-footer { font-size: 1.3rem; }
         }
@@ -259,7 +261,7 @@
                 
                 <div class="photo-grid-5">
                     <div class="photo-slot" onclick="triggerSlot(0)">
-                        <span class="slot-number">1</span>
+                        <span class="slot-number">1 (Main)</span>
                         <span id="plus-0">+</span>
                         <img id="img-slot-0">
                     </div>
@@ -534,7 +536,6 @@
         localStorage.setItem("cfg_ratio", document.getElementById('set-ratio').value);
         localStorage.setItem("cfg_folderId", document.getElementById('set-folder-id').value.trim() || DEFAULT_FOLDER_ID);
         alert("Settings Saved!"); closeSettings(); 
-        // 這裡不需要像以前一樣 applySettings 調整 CSS ratio class，因為現在框框統一為正方形
     }
     function loadSettingsToUI() {
         document.getElementById('set-timeout').value = localStorage.getItem("cfg_timeout") || "10";
