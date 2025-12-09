@@ -38,10 +38,29 @@
         .header-title h2 { margin: 0; font-size: 2.5rem; font-weight: 900; text-align: center; color: #222; }
         .author-header { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
 
-        /* --- 圖片版面加大 --- */
-        .photo-grid-5 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; justify-content: center; }
-        .photo-slot:nth-child(1) { grid-column: span 2; height: 560px; aspect-ratio: auto; } /* 大圖加大 */
-        .photo-slot { background-color: #f0f0f0; border: 2px dashed #ccc; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; height: 280px; } /* 小圖加大 */
+        /* --- 修改：照片改為 1 欄排列 --- */
+        .photo-grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr; /* 1欄 */
+            gap: 15px; 
+            justify-content: center; 
+        }
+        
+        .photo-slot { 
+            background-color: #f0f0f0; 
+            border: 2px dashed #ccc; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            overflow: hidden; 
+            position: relative; 
+            height: 300px; /* 高度統一加大 */
+            width: 100%;
+        }
+        
+        .photo-slot:active { background-color: #e0e0e0; border-color: var(--primary-color); }
         .photo-slot span { font-size: 2rem; color: #aaa; font-weight: bold;}
         .photo-slot .slot-number { position: absolute; top: 5px; left: 5px; font-size: 0.8rem; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 4px; pointer-events: none; }
         .photo-slot img { width: 100%; height: 100%; object-fit: cover; display: none; }
@@ -103,12 +122,9 @@
         <div class="left-column">
             <div class="card">
                 <span class="section-title">1. Photos (Tap box to add)</span>
-                <div class="photo-grid-5">
-                    <div class="photo-slot" onclick="triggerSlot(0)"><span class="slot-number">1 (Main)</span><span id="plus-0">+</span><img id="img-slot-0"></div>
+                <div class="photo-grid-2">
+                    <div class="photo-slot" onclick="triggerSlot(0)"><span class="slot-number">1</span><span id="plus-0">+</span><img id="img-slot-0"></div>
                     <div class="photo-slot" onclick="triggerSlot(1)"><span class="slot-number">2</span><span id="plus-1">+</span><img id="img-slot-1"></div>
-                    <div class="photo-slot" onclick="triggerSlot(2)"><span class="slot-number">3</span><span id="plus-2">+</span><img id="img-slot-2"></div>
-                    <div class="photo-slot" onclick="triggerSlot(3)"><span class="slot-number">4</span><span id="plus-3">+</span><img id="img-slot-3"></div>
-                    <div class="photo-slot" onclick="triggerSlot(4)"><span class="slot-number">5</span><span id="plus-4">+</span><img id="img-slot-4"></div>
                 </div>
                 <input type="file" id="common-file-input" accept="image/*" class="hidden-file-input" onchange="handleFileSelect(this)">
             </div>
@@ -159,11 +175,12 @@
 
 <script>
     const FIXED_SHEET_ID = "1CT9KVg3Lf7jzXap2h3sJM_nU1zHoQvSE_xwP1GzqzAA/edit"; 
-    const DEFAULT_FOLDER_ID = "1cYa4Bt1N_6XQF1U3-JumBoN4wJwpjAN3"; // 預設資料夾
+    const DEFAULT_FOLDER_ID = "1cYa4Bt1N_6XQF1U3-JumBoN4wJwpjAN3"; 
     const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL", "3XL"];
     const DEFAULT_COLORS = ["Red", "Blue", "Black", "White", "Green", "Yellow"];
 
-    let storedImages = [null, null, null, null, null];
+    // 修改：陣列大小改為 2
+    let storedImages = [null, null];
     let currentUploadIndex = 0;
     let recognition;
     let isRecording = false;
@@ -223,7 +240,8 @@
     }
 
     function updatePhotoUI() {
-        for(let i=0; i<5; i++) {
+        // 修改：迴圈只跑 2 次
+        for(let i=0; i<2; i++) {
             const imgEl = document.getElementById(`img-slot-${i}`);
             const plusEl = document.getElementById(`plus-${i}`);
             if (storedImages[i]) { imgEl.src = storedImages[i]; imgEl.style.display = 'block'; plusEl.style.display = 'none'; } 
@@ -296,7 +314,9 @@
                 if (res === "SUCCESS") {
                     showStatus('success', 'Done!', 'Upload Successful');
                     document.getElementById('noteInput').value = ""; document.getElementById('qty-input').value = "";
-                    storedImages = [null,null,null,null,null]; updatePhotoUI();
+                    // 清空陣列
+                    storedImages = [null, null]; 
+                    updatePhotoUI();
                 } else { showStatus('error', 'Error', res); }
                 btn.disabled = false;
             })
