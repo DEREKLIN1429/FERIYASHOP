@@ -34,7 +34,6 @@
             gap: 15px;
         }
 
-        /* 電腦版配置 */
         @media (min-width: 768px) {
             #app-screen {
                 display: grid;
@@ -51,7 +50,6 @@
             .right-column { height: 100%; overflow-y: auto; padding-left: 10px; display: flex; flex-direction: column; gap: 20px; }
         }
 
-        /* 手機版配置 */
         @media (max-width: 767px) {
             #app-screen { height: auto; overflow-y: auto; padding-bottom: 40px; }
             .left-column, .right-column { width: 100%; }
@@ -70,16 +68,16 @@
         .header-title h2 { margin: 0; font-size: 1.8rem; font-weight: 800; text-align: center;}
         .author-header { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
 
-        /* --- 照片區域樣式 (改為兩欄，按鈕變大) --- */
+        /* --- 【修改點】照片區域排版 --- */
         .photo-grid-3 {
             display: grid;
-            grid-template-columns: 1fr 1fr; 
+            grid-template-columns: 1fr 1fr; /* 兩欄 */
             gap: 15px;
             justify-content: center;
         }
         
         .photo-slot {
-            aspect-ratio: 1/1; 
+            aspect-ratio: 1/1; /* 保持正方形 */
             background-color: #f0f0f0;
             border: 2px dashed #ccc;
             border-radius: 10px;
@@ -91,6 +89,12 @@
             position: relative;
             transition: border-color 0.2s;
         }
+        
+        /* 【關鍵修改】第一張圖片橫跨所有欄位 (1 / -1)，變大 */
+        .photo-slot:nth-child(1) {
+            grid-column: 1 / -1; 
+        }
+
         .photo-slot:active { background-color: #e0e0e0; border-color: var(--primary-color); }
         .photo-slot span { font-size: 3rem; color: #aaa; font-weight: bold;}
         .photo-slot .slot-number { 
@@ -101,7 +105,7 @@
         .photo-slot img { width: 100%; height: 100%; object-fit: cover; display: none; }
         .hidden-file-input { display: none; }
 
-        /* --- 輸入欄位樣式 --- */
+        /* --- 輸入框樣式 --- */
         .input-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 0; }
         
         .form-input { 
@@ -121,7 +125,6 @@
         .lang-timer-container { display: flex; justify-content: space-between; align-items: center; padding: 0 5px;}
         .small-select { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 1rem; background: white; }
         
-        /* 底部按鈕 */
         .footer-btns-grid { 
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 15px; margin-top: 20px; 
         }
@@ -138,7 +141,7 @@
         .btn-excel { background-color: var(--excel-color); }
         .btn-photo { background-color: var(--drive-color); }
 
-        /* 彈出視窗 */
+        /* Modals */
         #settings-modal, #status-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 90%; max-width: 500px; padding: 30px; border-radius: 20px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; }
@@ -149,7 +152,6 @@
         .add-opt-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-add-opt { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1.1rem; }
 
-        /* 動畫 */
         .spinner { border: 6px solid #f3f3f3; border-top: 6px solid var(--primary-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
@@ -282,7 +284,6 @@
     const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL", "3XL"];
     const DEFAULT_COLORS = ["Red", "Blue", "Black", "White", "Green", "Yellow"];
 
-    // 初始陣列改為 3 個
     let storedImages = [null, null, null];
     let currentUploadIndex = 0;
     let recognition, isRecording = false, countdownInterval, punctuationTimer, timeLeft = 0;
@@ -339,7 +340,6 @@
     }
 
     function updatePhotoUI() {
-        // 迴圈改為 3
         for(let i=0; i<3; i++) {
             const imgEl = document.getElementById(`img-slot-${i}`);
             const plusEl = document.getElementById(`plus-${i}`);
@@ -348,7 +348,7 @@
         }
     }
 
-    // --- 設定、語音等功能 ---
+    // --- Config & Voice ---
     function openSettings() { loadSettingsToUI(); renderOptionManager(); document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function saveSettings() {
@@ -421,13 +421,13 @@
     function viewExcel() { window.open(`https://docs.google.com/spreadsheets/d/${FIXED_SHEET_ID}/edit`, '_blank'); }
     function viewDriveFolder() { window.open("https://drive.google.com/drive/folders/" + (localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID), '_blank'); }
 
-    // --- 上傳邏輯 ---
+    // --- Upload Logic ---
     function saveToCloud() {
         const note = document.getElementById('noteInput').value;
         const size = document.getElementById('size-select').value;
         const color = document.getElementById('color-select').value;
         const qty = document.getElementById('qty-input').value;
-        const price = document.getElementById('price-input').value; // 取得 Price
+        const price = document.getElementById('price-input').value; 
         const folderId = localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID;
         const scriptUrl = `https://script.google.com/macros/s/${FIXED_SCRIPT_ID}/exec`;
 
@@ -448,7 +448,6 @@
             document.getElementById('noteInput').value = "";
             document.getElementById('qty-input').value = "";
             document.getElementById('price-input').value = "";
-            // 清空為 3 個 null
             storedImages = [null,null,null];
             updatePhotoUI();
         })
