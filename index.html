@@ -89,7 +89,7 @@
         .header-title h2 { margin: 0; font-size: 2.5rem; font-weight: 900; text-align: center; color: #222; }
         .author-header { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
 
-        /* --- 5 Photos Layout --- */
+        /* --- 5 Photos Layout (加大版) --- */
         .photo-grid-5 {
             display: grid;
             grid-template-columns: 1fr 1fr; /* 兩欄 */
@@ -104,7 +104,7 @@
             aspect-ratio: auto; 
         }
 
-        /* 其他四張照片 */
+        /* 其他四張照片 - 高度加大 */
         .photo-slot {
             background-color: #f0f0f0;
             border: 2px dashed #ccc;
@@ -400,10 +400,16 @@
     </div>
 
 <script>
-    // ================= CONFIG (請填入 ID) =================
+    // ================= CONFIG =================
+    // 【更新】已經幫你填入你的 Script ID
+    const FIXED_SCRIPT_ID = "AKfycbxjMuuztalfWkLjRZRrtSdRkep_G0nYtOOLlsn3xVRyEQ27XgVN6vAYG2pTMUR54-Bi"; 
+    
+    // 請填入 Google Sheet ID (用於檢視按鈕)
     const FIXED_SHEET_ID = "1CT9KVg3Lf7jzXap2h3sJM_nU1zHoQvSE_xwP1GzqzAA/edit?gid=0#gid=0"; 
 
+    // 預設資料夾 (請確認是否需要修改)
     const DEFAULT_FOLDER_ID = "1cYa4Bt1N_6XQF1U3-JumBoN4wJwpjAN3";
+    
     const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL", "3XL"];
     const DEFAULT_COLORS = ["Red", "Blue", "Black", "White", "Green", "Yellow"];
 
@@ -452,7 +458,7 @@
         }
     }
 
-    // 【關鍵修正】加速上傳的壓縮邏輯
+    // 圖片壓縮邏輯 (加速版)
     function processImageWithCanvas(img) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -482,14 +488,14 @@
             }
         }
 
-        // 【修正 1】將最大寬度從 1000 改為 800 (大幅減少像素)
+        // 縮圖：寬度限制為 800px (加速上傳)
         const MAX_WIDTH = 800; 
         const scale = MAX_WIDTH / drawW;
         canvas.width = MAX_WIDTH; canvas.height = drawH * scale;
 
         ctx.drawImage(img, startX, startY, drawW, drawH, 0, 0, canvas.width, canvas.height);
         
-        // 【修正 2】將 JPEG 品質從 0.8 改為 0.5 (大幅減少檔案大小)
+        // 壓縮：品質 0.5 (加速上傳)
         const base64 = canvas.toDataURL('image/jpeg', 0.5);
         
         storedImages[currentUploadIndex] = base64;
