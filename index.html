@@ -401,7 +401,7 @@
 
 <script>
     // ================= CONFIG =================
-    // 【更新】已經幫你填入你的 Script ID
+    // 【更新】填入你的 Script ID
     const FIXED_SCRIPT_ID = "AKfycbxjMuuztalfWkLjRZRrtSdRkep_G0nYtOOLlsn3xVRyEQ27XgVN6vAYG2pTMUR54-Bi"; 
     
     // 請填入 Google Sheet ID (用於檢視按鈕)
@@ -647,6 +647,7 @@
             quantity: qty
         };
 
+        // 改用最穩定的 Google 內部呼叫
         google.script.run
             .withSuccessHandler(function(response) {
                 if (response === "SUCCESS") {
