@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5S-audit EX (重點事項紀錄)</title>
+    <title>FERIYA SHOP INOUT</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -20,8 +20,6 @@
             display: flex; justify-content: center; min-height: 100vh;
         }
 
-        /* 移除 #login-screen 相關 CSS */
-        
         #status-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center;
@@ -42,9 +40,6 @@
             border-radius: 5px; margin-top: 15px; cursor: pointer; display: none; font-size: 16px;
         }
 
-        /* 移除 #screenshot-modal 相關 CSS */
-
-        /* 移除 #app-screen 上的 display: none; */
         #app-screen { width: 100%; max-width: 500px; overflow-y: auto; padding: 20px; box-sizing: border-box; }
         
         .author-header {
@@ -62,7 +57,7 @@
         .header-btn:active { background: #e9ecef; }
         
         .header-title { text-align: center; flex-grow: 1; }
-        .header-title h2 { margin: 0; color: #333; font-size: 1.3rem; line-height: 1.4; }
+        .header-title h2 { margin: 0; color: #333; font-size: 1.5rem; line-height: 1.4; font-weight: 800; }
         .header-title span { font-size: 0.85em; color: #666; font-weight: normal; }
 
         .card { background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
@@ -73,7 +68,8 @@
         .btn-cam { background-color: #ffc107; color: #333; }
         .btn-gallery { background-color: #fd7e14; }
 
-        #preview-container { 
+        /* --- 照片容器樣式 --- */
+        .preview-box { 
             width: 100%; 
             background: #f0fff0; 
             border: 2px solid var(--frame-color);
@@ -83,12 +79,24 @@
             position: relative;
             box-sizing: border-box;
             transition: aspect-ratio 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 230, 0, 0.15);
+            box-shadow: 0 0 5px rgba(0, 230, 0, 0.1);
             cursor: pointer;
         }
-        #preview-container:active { opacity: 0.8; }
+        .preview-box:active { opacity: 0.8; }
 
-        #preview-container::after {
+        /* 主圖 (大) */
+        #main-preview-container {
+            margin-bottom: 10px;
+        }
+
+        /* 副圖 (4張 Grid) */
+        #sub-photos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2欄 */
+            gap: 10px;
+        }
+
+        .preview-box::after {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             border: 4px solid transparent;
             background: 
@@ -110,14 +118,20 @@
         .ratio-full { aspect-ratio: 9/16; }
         
         .ratio-tag {
-            position: absolute; top: 10px; left: 10px;
+            position: absolute; top: 5px; left: 5px;
             background: var(--frame-color); color: #000; font-weight: bold;
-            padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; pointer-events: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; pointer-events: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .img-label {
+            position: absolute; bottom: 5px; right: 5px;
+            background: rgba(0,0,0,0.5); color: #fff;
+            padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; pointer-events: none;
         }
 
-        #preview-img { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 1; }
-        .placeholder { color: #555; text-align: center; font-size: 0.9em; z-index: 0; font-weight: 500;}
+        .preview-img-display { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 1; }
+        .placeholder { color: #555; text-align: center; font-size: 0.85em; z-index: 0; font-weight: 500; line-height: 1.4;}
 
         textarea { 
             width: 100%; height: 220px; padding: 12px; border: 2px solid #eee; 
@@ -149,24 +163,18 @@
         .anim-purple { animation: flash-purple 1s infinite; }
         .anim-green { animation: flash-green 2s infinite; }
 
-        /* --- 語音/複製按鈕區塊 START --- */
-
-        /* 語音與複製按鈕容器：兩欄佈局 */
+        /* --- 語音按鈕區塊 (已移除複製按鈕) --- */
         .voice-copy-controls { 
             margin-top: 10px; 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); /* 兩個按鈕平均分配空間 */
-            gap: 15px; 
-            align-items: flex-start;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         } 
         
-        /* 語言選擇/計時器容器，並排 */
         .lang-timer-container {
-            grid-column: 1 / 3; /* 跨越兩欄 */
             display: flex;
-            justify-content: space-between; /* 語言選擇靠左，計時器靠右 */
+            justify-content: space-between; 
             align-items: center;
-            margin-bottom: 5px; 
         }
 
         .quick-lang-container {
@@ -186,54 +194,25 @@
             font-weight: bold;
         }
 
-        /* 語音按鈕樣式：正方形 (第一欄) */
         .voice-btn-wrapper {
-            grid-column: 1 / 2; 
             width: 100%; 
-            aspect-ratio: 1/1; 
-            margin: 0;
-            padding: 0;
+            height: 60px; /* 變寬，高度設為固定 */
         }
 
         .btn-voice { 
-            width: 100%; height: 100%; padding: 12px; border: none; border-radius: 12px;
+            width: 100%; height: 100%; padding: 0; border: none; border-radius: 12px;
             background-color: #17a2b8; color: white; font-weight: bold; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
             font-size: 16px; 
-            flex-direction: column; 
-            line-height: 1.2;
+            flex-direction: row; /* 改為水平排列 */
         }
 
         .btn-voice.recording { background-color: var(--danger-color); animation: pulse 1s infinite; }
         
-        /* 複製文字按鈕樣式：正方形 (第二欄) */
-        .copy-btn-wrapper {
-            grid-column: 2 / 3; 
-            width: 100%; 
-            aspect-ratio: 1/1; 
-            margin: 0;
-            padding: 0;
-            justify-self: end;
-        }
-
-        .btn-copy-main {
-            background-color: #008CBA; 
-            color: white; 
-            width: 100%; height: 100%; padding: 12px; border: none; border-radius: 12px;
-            font-weight: bold; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-            font-size: 16px; 
-            flex-direction: column;
-            line-height: 1.2;
-        }
-        
-        /* --- 語音/複製按鈕區塊 END --- */
-
-
-        /* --- 底部按鈕群組修改 --- */
+        /* --- 底部按鈕群組 --- */
         .footer-btns-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2個按鈕排一排 */
+            grid-template-columns: repeat(2, 1fr); 
             gap: 15px;
             margin-top: 20px;
             padding-bottom: 30px;
@@ -244,24 +223,23 @@
             padding: 15px; 
             border: none; 
             border-radius: 15px; 
-            font-size: 18px; /* 字體加大 */
+            font-size: 18px; 
             font-weight: bold; 
             cursor: pointer; 
             color: white; 
             display: flex;
             align-items: center;
             justify-content: center;
-            aspect-ratio: 1/1; /* 設為正方形 (Save & View Excel) */
+            aspect-ratio: 1/1; 
             line-height: 1.2;
             flex-direction: column; 
             text-align: center;
         }
         
-        /* 檢視雲端照片按鈕 (高度縮減) */
         .btn-drive.btn-full-width {
-            grid-column: 1 / -1; /* 跨越兩欄 */
-            aspect-ratio: 4 / 1; /* 縮減高度 */
-            flex-direction: row; /* 適合長條形，文字水平排版 */
+            grid-column: 1 / -1; 
+            aspect-ratio: 4 / 1; 
+            flex-direction: row; 
             gap: 15px;
             font-size: 18px;
             padding: 15px;
@@ -271,7 +249,7 @@
         .btn-view { background-color: #6c757d; }
         .btn-drive { background-color: var(--drive-color); }
 
-        /* --- 設定彈窗 (移除密碼設定區塊) --- */
+        /* --- 設定彈窗 --- */
         #settings-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
@@ -309,27 +287,46 @@
         <div class="header">
             <div class="header-btn" onclick="openSettings()" title="Settings (設定)">⚙️</div>
             <div class="header-title">
-                <h2>5S-audit EX<br>重點事項紀錄</h2>
+                <h2>FERIYA SHOP INOUT</h2>
             </div>
             <div class="header-btn" onclick="openSettings()" title="Settings (設定)">⚙️</div>
         </div>
 
         <div class="card">
-            <span class="section-title">0. Defect Worker ID (指摘工號/人員)</span>
-            <input type="text" id="workerIdInput" class="modal-input" placeholder="Enter Worker ID (請輸入工號)">
-        </div>
-
-        <div class="card">
-            <span class="section-title">1. Photo (圖片紀錄)</span>
+            <span class="section-title">1. Photos (圖片紀錄 - Max 5)</span>
             <div class="photo-controls">
-                <button class="btn-half btn-cam" onclick="triggerCam()">📷 Camera (拍照)</button>
-                <button class="btn-half btn-gallery" onclick="triggerGallery()">🖼️ Gallery (相簿)</button>
+                <button class="btn-half btn-cam" onclick="triggerCam(null)">📷 Camera (拍照)</button>
+                <button class="btn-half btn-gallery" onclick="triggerGallery(null)">🖼️ Gallery (相簿)</button>
             </div>
             
-            <div id="preview-container" class="ratio-4-3" onclick="triggerCam()" title="Click to take photo">
+            <div id="main-preview-container" class="preview-box ratio-4-3" onclick="triggerCam(0)" title="Click to change Main Photo">
                 <div class="ratio-tag" id="ratio-display-tag">Ratio: 4:3</div>
-                <span class="placeholder">Tap here to Take Photo<br>(點擊此處拍照)</span>
-                <img id="preview-img">
+                <div class="img-label">Main</div>
+                <span class="placeholder" id="ph-0">Main Photo<br>(主圖)</span>
+                <img id="preview-img-0" class="preview-img-display">
+            </div>
+
+            <div id="sub-photos-grid">
+                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(1)">
+                    <div class="img-label">#2</div>
+                    <span class="placeholder" id="ph-1">Photo 2</span>
+                    <img id="preview-img-1" class="preview-img-display">
+                </div>
+                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(2)">
+                    <div class="img-label">#3</div>
+                    <span class="placeholder" id="ph-2">Photo 3</span>
+                    <img id="preview-img-2" class="preview-img-display">
+                </div>
+                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(3)">
+                    <div class="img-label">#4</div>
+                    <span class="placeholder" id="ph-3">Photo 4</span>
+                    <img id="preview-img-3" class="preview-img-display">
+                </div>
+                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(4)">
+                    <div class="img-label">#5</div>
+                    <span class="placeholder" id="ph-4">Photo 5</span>
+                    <img id="preview-img-4" class="preview-img-display">
+                </div>
             </div>
             
             <input type="file" id="input-cam" accept="image/*" capture="environment" class="hidden" onchange="handleFile(this)">
@@ -338,7 +335,7 @@
 
         <div class="card" id="note-card">
             <span class="section-title">2. Note (文字/語音)</span>
-            <textarea id="noteInput" placeholder="After taking a photo, type here or use voice... (拍照後，在此輸入或使用語音)"></textarea>
+            <textarea id="noteInput" placeholder="After taking photos, type here or use voice... (拍照後，在此輸入或使用語音)"></textarea>
             
             <div class="voice-copy-controls">
                 
@@ -360,17 +357,11 @@
 
                 <div class="voice-btn-wrapper">
                     <button type="button" class="btn-voice" id="voiceBtn" onclick="toggleVoice()">
-                        🎤<br>Start Voice<br>(開始錄音)
+                        🎤 Start Voice (開始錄音)
                     </button>
                 </div>
                 
-                <div class="copy-btn-wrapper">
-                    <button class="btn-copy-main" onclick="copyNote()">
-                        📋<br>複製文字
-                    </button>
                 </div>
-
-            </div>
 
         </div>
 
@@ -423,7 +414,7 @@
                     <option value="1/1">1:1 (Square)</option>
                     <option value="FULL">FULL (Original / 全畫面)</option>
                 </select>
-                <div class="hint-text">* Applies auto-crop unless set to FULL.</div>
+                <div class="hint-text">* Applies to ALL 5 photos.</div>
             </div>
 
             <div style="text-align: center; color: var(--primary-color); font-size: 0.9em; margin-top: 15px;">
@@ -436,13 +427,15 @@
 
 <script>
     // ================= 初始化 & FIXED PATHS =================
-    // 移除 DEFAULT_PASS, checkLogin, logout 及其所有相關邏輯
     
     const FIXED_SCRIPT_ID = "AKfycbzMVIqiYBPqiiSgByGX0sWEh_N0sGUAjgfC-3F8Kq3FQ9jTq-hmQR6Cts6N1nZisQ73Nw";
     const FIXED_SHEET_ID = "1Bc6rFBxtUPiE6J835Xt5Eq9PoVtceFi0FlTUbY9a7oc/edit?gid=0#gid=0"; 
     const FIXED_FOLDER_ID = "1f0F1CQlzztz551hdLVEyON4gR2KFs3m3";
 
-    let processedImageBase64 = ""; 
+    // 儲存 5 張圖片的 Array，初始化為 null
+    let storedImages = [null, null, null, null, null];
+    let currentTargetIndex = 0; // 目前正在操作哪一張圖片 (0~4)
+
     let recognition;
     
     let isRecording = false; 
@@ -454,15 +447,11 @@
     let snapshotText = ""; 
 
     window.onload = function() {
-        // 移除登入檢查，直接顯示 App
         showApp();
         loadSettingsToUI();
     };
 
-    // 移除 checkLogin() 和 logout() 函式
-
     function showApp() {
-        // 移除 document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
         applySettings(); 
     }
@@ -489,7 +478,6 @@
     }
 
     function saveSettings() {
-        // 移除密碼相關操作
         const timeout = document.getElementById('set-timeout').value;
         const warning = document.getElementById('set-warning').value;
         const lang = document.getElementById('set-lang').value; 
@@ -508,7 +496,6 @@
     }
 
     function loadSettingsToUI() {
-        // 移除密碼相關操作
         document.getElementById('set-timeout').value = localStorage.getItem("cfg_timeout") || "10";
         document.getElementById('set-warning').value = localStorage.getItem("cfg_warning") || "3";
         const savedLang = localStorage.getItem("cfg_lang") || "cmn-Hant-TW";
@@ -521,25 +508,52 @@
         const timeout = localStorage.getItem("cfg_timeout") || "10";
         document.getElementById('display-timeout').innerText = timeout;
         const ratio = localStorage.getItem("cfg_ratio") || "4/3";
-        const container = document.getElementById('preview-container');
-        const tag = document.getElementById('ratio-display-tag');
         
-        container.className = ""; 
-        container.style.aspectRatio = "";
+        // 套用比例到所有圖片容器 (0~4)
+        const allBoxes = document.querySelectorAll('.preview-box');
+        allBoxes.forEach(container => {
+            container.className = "preview-box"; 
+            if(container.id !== "main-preview-container") container.classList.add("sub-box");
+            
+            container.style.aspectRatio = "";
 
-        if(ratio === "4/3") container.classList.add("ratio-4-3");
-        else if(ratio === "16/9") container.classList.add("ratio-16-9");
-        else if(ratio === "9/16") container.classList.add("ratio-9-16");
-        else if(ratio === "1/1") container.classList.add("ratio-1-1");
-        else if(ratio === "FULL") container.classList.add("ratio-full");
-        
-        if(ratio === "FULL") tag.innerText = "Ratio: Full (Original)";
+            if(ratio === "4/3") container.classList.add("ratio-4-3");
+            else if(ratio === "16/9") container.classList.add("ratio-16-9");
+            else if(ratio === "9/16") container.classList.add("ratio-9-16");
+            else if(ratio === "1/1") container.classList.add("ratio-1-1");
+            else if(ratio === "FULL") container.classList.add("ratio-full");
+        });
+
+        const tag = document.getElementById('ratio-display-tag');
+        if(ratio === "FULL") tag.innerText = "Ratio: Full";
         else tag.innerText = "Ratio: " + ratio.replace("/", ":");
     }
 
-    // ================= 圖片處理 (不變) =================
-    function triggerCam() { document.getElementById('input-cam').click(); }
-    function triggerGallery() { document.getElementById('input-gallery').click(); }
+    // ================= 圖片處理 (支援5張) =================
+    
+    // index 為 null 代表按上方按鈕，預設操作目前選定或第一張空白的
+    // index 為數字 (0-4) 代表直接點擊某個框框
+    function triggerCam(index) {
+        if (index !== null) {
+            currentTargetIndex = index;
+        } else {
+            // 自動尋找第一個空的，如果都滿了就覆蓋第一張
+            let emptyIndex = storedImages.findIndex(img => img === null);
+            currentTargetIndex = (emptyIndex === -1) ? 0 : emptyIndex;
+        }
+        document.getElementById('input-cam').click(); 
+    }
+
+    function triggerGallery(index) {
+        if (index !== null) {
+            currentTargetIndex = index;
+        } else {
+            let emptyIndex = storedImages.findIndex(img => img === null);
+            currentTargetIndex = (emptyIndex === -1) ? 0 : emptyIndex;
+        }
+        document.getElementById('input-gallery').click(); 
+    }
+
     function handleFile(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
@@ -550,8 +564,11 @@
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
+            // 重置 input 以便重複選擇同一檔案
+            input.value = '';
         }
     }
+
     function processImageWithCanvas(img) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -586,24 +603,30 @@
         canvas.width = MAX_WIDTH; canvas.height = drawH * scale;
 
         ctx.drawImage(img, startX, startY, drawW, drawH, 0, 0, canvas.width, canvas.height);
-        processedImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
         
-        const preview = document.getElementById('preview-img');
-        preview.src = processedImageBase64;
-        preview.style.display = 'block';
-        document.querySelector('.placeholder').style.display = 'none';
+        // 儲存到 Array 對應位置
+        const base64 = canvas.toDataURL('image/jpeg', 0.8);
+        storedImages[currentTargetIndex] = base64;
+        
+        // 更新 UI
+        const previewImg = document.getElementById(`preview-img-${currentTargetIndex}`);
+        const placeholder = document.getElementById(`ph-${currentTargetIndex}`);
+        
+        previewImg.src = base64;
+        previewImg.style.display = 'block';
+        if(placeholder) placeholder.style.display = 'none';
 
+        // 如果是 Full 模式，調整該容器比例
         if(isFull) {
-             const container = document.getElementById('preview-container');
-             container.className = ""; 
+             const container = previewImg.parentElement;
              container.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
         }
     }
 
-    // ================= 語音功能 (調整按鈕內容) =================
+    // ================= 語音功能 (已調整) =================
     function toggleVoice() {
         if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            alert("Browser not supported"); return;
+            alert("Browser not supported (請使用 Chrome/Edge)"); return;
         }
         if (isRecording) {
             manualStopVoice(); 
@@ -623,7 +646,7 @@
         isRecording = true;
         isManualStop = false; 
         document.getElementById('voiceBtn').classList.add('recording');
-        document.getElementById('voiceBtn').innerHTML = "🛑<br>Stop"; // 配合正方形按鈕
+        document.getElementById('voiceBtn').innerHTML = "🛑 Stop Recording (停止錄音)"; 
         
         snapshotText = document.getElementById('noteInput').value;
         if(snapshotText.length > 0 && !snapshotText.endsWith(" ")) {
@@ -727,7 +750,7 @@
         if(punctuationTimer) clearTimeout(punctuationTimer);
         
         document.getElementById('voiceBtn').classList.remove('recording');
-        document.getElementById('voiceBtn').innerHTML = "🎤<br>Start Voice<br>(開始錄音)"; // 配合正方形按鈕
+        document.getElementById('voiceBtn').innerHTML = "🎤 Start Voice (開始錄音)"; 
         
         const noteInput = document.getElementById('noteInput');
         noteInput.classList.remove('anim-red', 'anim-purple', 'anim-green');
@@ -736,28 +759,7 @@
         document.getElementById('display-timeout').innerText = originalTime;
     }
 
-    // ================= 複製/截圖功能 (已修改) =================
-
-    // 移除 closeScreenshotModal()
-    // 移除 captureScreenArea()
-    
-    function copyNote() {
-        const note = document.getElementById('noteInput').value;
-        if (note.trim() === "") {
-            alert("Note is empty! (文字內容為空)");
-            return;
-        }
-        navigator.clipboard.writeText(note)
-            .then(() => {
-                showStatus('success', 'Copied!', '文字內容已複製到剪貼簿。');
-                setTimeout(() => { closeStatusModal(); }, 1800);
-            })
-            .catch(err => {
-                alert('Copy failed: ' + err + ' (請允許剪貼簿存取)');
-            });
-    }
-
-    // ================= 上傳與檢視 (不變) =================
+    // ================= 上傳與檢視 (更新為多圖) =================
     function showStatus(type, title, subtitle) {
         const modal = document.getElementById('status-modal');
         const spinner = document.getElementById('status-spinner');
@@ -782,13 +784,13 @@
 
     function saveToCloud() {
         const note = document.getElementById('noteInput').value;
-        const workerId = document.getElementById('workerIdInput').value; 
-        
         const folderId = FIXED_FOLDER_ID;
         const scriptUrl = `https://script.google.com/macros/s/${FIXED_SCRIPT_ID}/exec`;
-
-        if(!processedImageBase64 && !note && !workerId) {
-            alert("Empty! Please take a photo, write a note, or enter Worker ID."); return;
+        
+        // 檢查是否有任何內容
+        const hasImage = storedImages.some(img => img !== null);
+        if(!hasImage && !note) {
+            alert("Empty! Please take at least one photo or write a note."); return;
         }
 
         const btn = document.getElementById('saveBtn');
@@ -797,9 +799,8 @@
 
         const data = { 
             note: note, 
-            image: processedImageBase64, 
-            folderId: folderId,
-            workerId: workerId 
+            images: storedImages, // 這裡傳送的是陣列 (Array)
+            folderId: folderId
         };
 
         fetch(scriptUrl, {
@@ -809,17 +810,21 @@
         .then(r => r.json())
         .then(res => {
             showStatus('success', 'Upload Success!', '上傳成功！');
+            // 清空所有內容
             document.getElementById('noteInput').value = "";
-            document.getElementById('workerIdInput').value = ""; 
-            processedImageBase64 = "";
-            document.getElementById('preview-img').style.display = 'none';
-            document.querySelector('.placeholder').style.display = 'block';
+            storedImages = [null, null, null, null, null];
+            
+            // 重置所有圖片顯示
+            for(let i=0; i<5; i++) {
+                document.getElementById(`preview-img-${i}`).style.display = 'none';
+                document.getElementById(`ph-${i}`).style.display = 'block';
+            }
             applySettings();
             setTimeout(() => { closeStatusModal(); }, 2000);
         })
         .catch(e => {
             console.error(e);
-            showStatus('error', 'Upload Failed', '上傳失敗，請檢查網路。');
+            showStatus('error', 'Upload Failed', '上傳失敗，請檢查網路或 GAS 設定。');
         })
         .finally(() => {
             btn.disabled = false;
@@ -836,7 +841,7 @@
         if(folderId && folderId.trim() !== "") {
             window.open("https://drive.google.com/drive/folders/" + folderId, '_blank');
         } else {
-            if(confirm("Folder ID not set. Open Google Drive Root?\n(尚未設定資料夾 ID，要開啟雲端硬碟根目錄嗎？)")) {
+            if(confirm("Folder ID not set. Open Google Drive Root?")) {
                 window.open("https://drive.google.com/drive/my-drive", '_blank');
             }
         }
