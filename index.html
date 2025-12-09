@@ -68,16 +68,17 @@
         .header-title h2 { margin: 0; font-size: 1.8rem; font-weight: 800; text-align: center;}
         .author-header { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
 
-        /* --- 【修改點】照片區域排版 --- */
+        /* --- 【修改點】照片區域排版 (3張1欄，加大) --- */
         .photo-grid-3 {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 兩欄 */
-            gap: 15px;
+            grid-template-columns: 1fr; /* 改為單欄 (1 column) */
+            gap: 20px;
             justify-content: center;
         }
         
         .photo-slot {
-            aspect-ratio: 1/1; /* 保持正方形 */
+            width: 100%;
+            height: 500px; /* 【修改點】強制高度加大 */
             background-color: #f0f0f0;
             border: 2px dashed #ccc;
             border-radius: 10px;
@@ -90,20 +91,33 @@
             transition: border-color 0.2s;
         }
         
-        /* 【關鍵修改】第一張圖片橫跨所有欄位 (1 / -1)，變大 */
-        .photo-slot:nth-child(1) {
-            grid-column: 1 / -1; 
-        }
-
+        /* 移除原本第一張放大的設定，現在全部一樣大 */
+        
         .photo-slot:active { background-color: #e0e0e0; border-color: var(--primary-color); }
         .photo-slot span { font-size: 3rem; color: #aaa; font-weight: bold;}
         .photo-slot .slot-number { 
-            position: absolute; top: 5px; left: 5px; 
-            font-size: 1rem; color: #666; background: rgba(255,255,255,0.8); 
-            padding: 2px 8px; border-radius: 4px; pointer-events: none;
+            position: absolute; top: 10px; left: 10px; 
+            font-size: 1.5rem; color: #333; background: rgba(255,255,255,0.9); 
+            padding: 5px 12px; border-radius: 6px; pointer-events: none;
+            font-weight: bold;
         }
         .photo-slot img { width: 100%; height: 100%; object-fit: cover; display: none; }
         .hidden-file-input { display: none; }
+
+        /* 資料夾選取按鈕 */
+        .btn-folder-load {
+            width: 100%;
+            padding: 12px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-folder-load:hover { background-color: #5a6268; }
 
         /* --- 輸入框樣式 --- */
         .input-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 0; }
@@ -185,8 +199,13 @@
 
         <div class="left-column">
             <div class="card">
-                <span class="section-title">1. Photos (Tap to add)</span>
+                <span class="section-title">1. Photos</span>
                 
+                <button class="btn-folder-load" onclick="document.getElementById('folder-select-input').click()">
+                    <span>📂</span> 載入資料夾照片
+                </button>
+                <input type="file" id="folder-select-input" class="hidden-file-input" webkitdirectory directory multiple onchange="handleFolderSelect(this)">
+
                 <div class="photo-grid-3">
                     <div class="photo-slot" onclick="triggerSlot(0)">
                         <span class="slot-number">1</span><span id="plus-0">+</span><img id="img-slot-0">
@@ -266,11 +285,13 @@
     <div id="settings-modal">
         <div class="modal-content">
             <div class="modal-header"><h3>Settings</h3><button onclick="closeSettings()" style="font-size:2rem;border:none;background:none;">&times;</button></div>
-            <div class="modal-group"><label>Folder ID</label><input type="text" id="set-folder-id" class="modal-input"></div>
+            
+            <div class="modal-group"><label>Drive Folder ID</label><input type="text" id="set-folder-id" class="modal-input"></div>
+            
             <div class="modal-group"><label>Color Options</label><div class="option-manager"><div id="color-options-list"></div></div><div class="add-opt-group"><input type="text" id="new-color-input" class="modal-input"><button class="btn-add-opt" onclick="addColorOption()">Add</button></div></div>
             <div class="modal-group"><label>Size Options</label><div class="option-manager"><div id="size-options-list"></div></div><div class="add-opt-group"><input type="text" id="new-size-input" class="modal-input"><button class="btn-add-opt" onclick="addSizeOption()">Add</button></div></div>
             <div class="modal-group"><label>Voice Timeout</label><input type="number" id="set-timeout" class="modal-input" value="10"></div>
-            <div class="modal-group"><label>Photo Ratio</label><select id="set-ratio" class="modal-input"><option value="4/3">4:3</option><option value="16/9">16:9</option><option value="1/1">1:1</option></select></div>
+            
             <button class="btn-main btn-save" onclick="saveSettings()" style="width:100%;height:60px;font-size:1.5rem;color:white;border:none;border-radius:10px;background:var(--primary-color);">Save Settings</button>
         </div>
     </div>
@@ -300,13 +321,43 @@
 
     function triggerSlot(index) { currentUploadIndex = index; document.getElementById('common-file-input').click(); }
     
+    // --- 【修改點】處理資料夾批次匯入 ---
+    function handleFolderSelect(input) {
+        if (input.files && input.files.length > 0) {
+            let loadedCount = 0;
+            // 過濾出圖片檔案
+            const imageFiles = Array.from(input.files).filter(file => file.type.startsWith('image/'));
+            
+            // 取前 3 張
+            const filesToLoad = imageFiles.slice(0, 3);
+            
+            if(filesToLoad.length === 0) {
+                alert("該資料夾中沒有圖片！");
+                return;
+            }
+
+            filesToLoad.forEach((file, index) => {
+                currentUploadIndex = index; // 設定當前要填入的格子
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() { processImageWithCanvas(img, index); };
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+            
+            input.value = ''; // 重置 input 讓下次可以選同資料夾
+        }
+    }
+
     function handleFileSelect(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
-                img.onload = function() { processImageWithCanvas(img); };
+                img.onload = function() { processImageWithCanvas(img, currentUploadIndex); };
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
@@ -314,11 +365,14 @@
         }
     }
 
-    function processImageWithCanvas(img) {
+    // --- 【修改點】移除 Photo Ratio 邏輯，改為強制參數 index ---
+    function processImageWithCanvas(img, targetIndex) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const ratioStr = localStorage.getItem("cfg_ratio") || "4/3";
-        let targetRatio = (ratioStr === "16/9") ? 16/9 : (ratioStr === "1/1") ? 1 : 4/3;
+        
+        // 預設比例 (因為移除了 Ratio 設定，這邊可以固定為 4:3 或依照原圖)
+        // 這裡設定為原圖比例稍微縮放，或維持 4:3 以獲得一致性
+        let targetRatio = 4/3; 
 
         let srcW = img.width, srcH = img.height;
         let drawW, drawH, startX, startY;
@@ -334,8 +388,11 @@
         const scale = MAX_WIDTH / drawW;
         canvas.width = MAX_WIDTH; canvas.height = drawH * scale;
 
+        // 使用更好的品質
         ctx.drawImage(img, startX, startY, drawW, drawH, 0, 0, canvas.width, canvas.height);
-        storedImages[currentUploadIndex] = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // 使用傳入的 targetIndex 確保多張上傳時不會錯亂
+        storedImages[targetIndex] = canvas.toDataURL('image/jpeg', 0.8);
         updatePhotoUI();
     }
 
@@ -351,17 +408,20 @@
     // --- Config & Voice ---
     function openSettings() { loadSettingsToUI(); renderOptionManager(); document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+    
+    // 【修改點】移除 Ratio 儲存
     function saveSettings() {
         localStorage.setItem("cfg_timeout", document.getElementById('set-timeout').value);
-        localStorage.setItem("cfg_ratio", document.getElementById('set-ratio').value);
         localStorage.setItem("cfg_folderId", document.getElementById('set-folder-id').value.trim() || DEFAULT_FOLDER_ID);
         alert("Settings Saved!"); closeSettings(); 
     }
+    
+    // 【修改點】移除 Ratio 讀取
     function loadSettingsToUI() {
         document.getElementById('set-timeout').value = localStorage.getItem("cfg_timeout") || "10";
-        document.getElementById('set-ratio').value = localStorage.getItem("cfg_ratio") || "4/3";
         document.getElementById('set-folder-id').value = localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID;
     }
+    
     function renderDropdowns() {
         const sizeSel = document.getElementById('size-select'); sizeSel.innerHTML = "";
         sizeOptions.forEach(s => { let o = document.createElement('option'); o.value = s; o.innerText = s; sizeSel.appendChild(o); });
