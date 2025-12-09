@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FERIYA SHOP INOUT</title>
+    
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <style>
         :root {
             --primary-color: #007bff;
@@ -298,7 +302,7 @@
     function viewExcel() { window.open(`https://docs.google.com/spreadsheets/d/${FIXED_SHEET_ID}/edit`, '_blank'); }
     function viewDriveFolder() { window.open("https://drive.google.com/drive/folders/" + (localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID), '_blank'); }
 
-    // Save to Cloud
+    // ★★★ 修正 2：安全的上傳至雲端函式 ★★★
     function saveToCloud() {
         const note = document.getElementById('noteInput').value;
         const size = document.getElementById('size-select').value;
@@ -309,19 +313,41 @@
         showStatus('loading', 'Uploading...', 'Compressing & Uploading...');
         const btn = document.getElementById('saveBtn'); btn.disabled = true;
 
-        google.script.run
-            .withSuccessHandler(function(res) {
-                if (res === "SUCCESS") {
-                    showStatus('success', 'Done!', 'Upload Successful');
-                    document.getElementById('noteInput').value = ""; document.getElementById('qty-input').value = "";
-                    // 清空陣列
-                    storedImages = [null, null]; 
-                    updatePhotoUI();
-                } else { showStatus('error', 'Error', res); }
-                btn.disabled = false;
-            })
-            .withFailureHandler(function(e) { console.error(e); showStatus('error', 'Error', 'System Error: ' + e.message); btn.disabled = false; })
-            .processForm({ note: note, images: storedImages, size: size, color: color, quantity: qty });
+        // 安全檢查：如果你是在本機電腦直接開網頁，google.script 是不存在的
+        if (typeof google === 'undefined' || typeof google.script === 'undefined') {
+            console.error("錯誤：找不到 google.script 物件 (是否未在 Apps Script 環境下執行?)");
+            alert("錯誤：無法連接後端。\n請確認您是透過 Google Apps Script 部署網址執行，而非直接開啟 HTML 檔。");
+            closeStatusModal(); // 關閉轉圈圈
+            btn.disabled = false;
+            return;
+        }
+
+        // 使用 try 確保安全執行
+        try {
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if (res === "SUCCESS") {
+                        showStatus('success', 'Done!', 'Upload Successful');
+                        document.getElementById('noteInput').value = ""; document.getElementById('qty-input').value = "";
+                        storedImages = [null, null]; 
+                        updatePhotoUI();
+                    } else { 
+                        showStatus('error', 'Error', res); 
+                    }
+                    btn.disabled = false;
+                    // 這裡通常不需要手動 closeStatusModal，因為 user 會點擊 Close 按鈕
+                })
+                .withFailureHandler(function(e) { 
+                    console.error(e); 
+                    showStatus('error', 'Error', 'System Error: ' + e.message); 
+                    btn.disabled = false; 
+                })
+                .processForm({ note: note, images: storedImages, size: size, color: color, quantity: qty });
+        } catch (err) {
+            console.error("執行時發生錯誤: ", err);
+            showStatus('error', 'Exception', err.message);
+            btn.disabled = false;
+        }
     }
 </script>
 </body>
