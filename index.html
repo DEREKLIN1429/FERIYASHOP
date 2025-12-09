@@ -86,11 +86,10 @@
         }
         .header-btn:hover { background: #e9ecef; }
         
-        /* 【修正】加大標題字體 */
         .header-title h2 { margin: 0; font-size: 2.5rem; font-weight: 900; text-align: center; color: #222; }
         .author-header { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
 
-        /* --- 【修正】5 Photos Layout (1 Big + 4 Small) --- */
+        /* --- 5 Photos Layout (1 Big + 4 Small) --- */
         .photo-grid-5 {
             display: grid;
             grid-template-columns: 1fr 1fr; /* 兩欄 */
@@ -101,7 +100,8 @@
         /* 第一張照片 (Index 0) - 跨兩欄，高度較高 */
         .photo-slot:nth-child(1) {
             grid-column: span 2;
-            height: 280px; 
+            /* 【修正】加大1倍 (原本280px -> 560px) */
+            height: 560px; 
             aspect-ratio: auto; /* 取消原本的正方形限制 */
         }
 
@@ -117,7 +117,8 @@
             overflow: hidden;
             position: relative;
             transition: border-color 0.2s;
-            height: 140px; /* 小圖高度 */
+            /* 【修正】加大1倍 (原本140px -> 280px) */
+            height: 280px; 
         }
         .photo-slot:active { background-color: #e0e0e0; border-color: var(--primary-color); }
         
@@ -405,10 +406,10 @@
 <script>
     // ================= CONFIG (請填入 ID) =================
     // 重要：請將 Web App URL 的 ID 填入下方
-    const FIXED_SCRIPT_ID = "AKfycbx8zpFseo3QoP74x7jMbSn81UO_R_2RTs2wjSI2Ak8dfHh1iM-fNA87KepeGztdS2ce/exec"; 
+    const FIXED_SCRIPT_ID = "AKfycbxjMuuztalfWkLjRZRrtSdRkep_G0nYtOOLlsn3xVRyEQ27XgVN6vAYG2pTMUR54-Bi"; 
     
     // 請填入 Google Sheet ID (用於檢視按鈕)
-    const FIXED_SHEET_ID = "1CT9KVg3Lf7jzXap2h3sJM_nU1zHoQvSE_xwP1GzqzAA/edit?gid=0#gid=0"; 
+    const FIXED_SHEET_ID = "1CT9KVg3Lf7jzXap2h3sJM_nU1zHoQvSE_xwP1GzqzAA"; 
 
     const DEFAULT_FOLDER_ID = "1cYa4Bt1N_6XQF1U3-JumBoN4wJwpjAN3";
     const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL", "3XL"];
