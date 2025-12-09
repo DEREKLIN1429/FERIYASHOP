@@ -12,369 +12,263 @@
             --danger-color: #dc3545;
             --drive-color: #198754; 
             --frame-color: #00e600; 
+            --text-color: #333;
+            --push-btn-color: #6610f2; /* 紫色按鈕 */
         }
+        * { box-sizing: border-box; }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: var(--bg-color); 
             margin: 0; padding: 0;
-            display: flex; justify-content: center; min-height: 100vh;
+            display: flex; justify-content: center; 
+            min-height: 100vh;
+            color: var(--text-color);
         }
 
-        #status-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center;
-        }
-        .status-box {
-            background: white; padding: 25px; border-radius: 12px; width: 80%; max-width: 280px;
-            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .status-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-        .spinner {
-            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color);
-            border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;
-            margin: 0 auto 15px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #status-close-btn {
-            background: var(--primary-color); color: white; border: none; padding: 8px 20px;
-            border-radius: 5px; margin-top: 15px; cursor: pointer; display: none; font-size: 16px;
+        /* --- 佈局容器 (RWD) --- */
+        #app-screen { 
+            width: 100%; 
+            padding: 20px; 
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        #app-screen { width: 100%; max-width: 500px; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        
-        .author-header {
-            text-align: center; font-size: 0.75rem; color: #999; padding-bottom: 10px;
-            letter-spacing: 1px; font-weight: 500;
+        /* 電腦版樣式 */
+        @media (min-width: 768px) {
+            #app-screen {
+                max-width: 1400px;
+                display: grid;
+                grid-template-columns: 1.2fr 0.8fr; 
+                grid-template-rows: auto 1fr;
+                align-items: start;
+                height: 100vh;
+                overflow-y: hidden; 
+            }
+            .header-section { grid-column: 1 / -1; }
+            .left-column { height: 90vh; overflow-y: auto; padding-right: 10px; }
+            .right-column { height: 90vh; overflow-y: auto; padding-left: 10px; display: flex; flex-direction: column; gap: 15px; }
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        .header-btn { 
-            font-size: 26px; cursor: pointer; color: #555; padding: 8px; 
-            border-radius: 50%; transition: background 0.2s, color 0.2s;
-            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+        /* 手機版樣式 */
+        @media (max-width: 767px) {
+            #app-screen { max-width: 100%; overflow-x: hidden; }
+            .left-column, .right-column { width: 100%; }
         }
-        .header-btn:active { background: #e9ecef; }
-        
-        .header-title { text-align: center; flex-grow: 1; }
-        .header-title h2 { margin: 0; color: #333; font-size: 1.5rem; line-height: 1.4; font-weight: 800; }
-        .header-title span { font-size: 0.85em; color: #666; font-weight: normal; }
 
-        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        /* --- 通用元件 --- */
+        .card { background: var(--card-bg); padding: 15px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
         .section-title { font-weight: bold; color: #555; margin-bottom: 10px; display: block; font-size: 1rem; }
 
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .header-btn { 
+            font-size: 24px; cursor: pointer; color: #555; padding: 8px; 
+            border-radius: 50%; transition: background 0.2s;
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+        }
+        .header-btn:hover { background: #e9ecef; }
+        .header-title h2 { margin: 0; font-size: 1.5rem; font-weight: 800; text-align: center;}
+        .author-header { text-align: center; font-size: 0.75rem; color: #999; margin-bottom: 5px; letter-spacing: 1px;}
+
+        /* --- 照片區域 --- */
         .photo-controls { display: flex; gap: 10px; margin-bottom: 10px; }
-        .btn-half { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 5px;}
+        .btn-half { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem;}
         .btn-cam { background-color: #ffc107; color: #333; }
         .btn-gallery { background-color: #fd7e14; }
 
-        /* --- 照片容器樣式 --- */
+        /* 預覽框通用樣式 */
         .preview-box { 
-            width: 100%; 
-            background: #f0fff0; 
-            border: 2px solid var(--frame-color);
-            border-radius: 8px; 
-            display: flex; align-items: center; justify-content: center; 
-            overflow: hidden;
-            position: relative;
-            box-sizing: border-box;
-            transition: aspect-ratio 0.3s ease;
-            box-shadow: 0 0 5px rgba(0, 230, 0, 0.1);
-            cursor: pointer;
+            width: 100%; background: #f0fff0; border: 2px solid var(--frame-color);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; position: relative;
+            box-shadow: 0 0 5px rgba(0, 230, 0, 0.1); transition: opacity 0.2s;
         }
-        .preview-box:active { opacity: 0.8; }
-
-        /* 主圖 (大) */
-        #main-preview-container {
-            margin-bottom: 10px;
-        }
-
-        /* 副圖 (4張 Grid) */
-        #sub-photos-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2欄 */
-            gap: 10px;
-        }
-
-        .preview-box::after {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            border: 4px solid transparent;
-            background: 
-                linear-gradient(to right, var(--frame-color) 4px, transparent 4px) 0 0,
-                linear-gradient(to bottom, var(--frame-color) 4px, transparent 4px) 0 0,
-                linear-gradient(to left, var(--frame-color) 4px, transparent 4px) 100% 0,
-                linear-gradient(to bottom, var(--frame-color) 4px, transparent 4px) 100% 0,
-                linear-gradient(to right, var(--frame-color) 4px, transparent 4px) 0 100%,
-                linear-gradient(to top, var(--frame-color) 4px, transparent 4px) 0 100%,
-                linear-gradient(to left, var(--frame-color) 4px, transparent 4px) 100% 100%,
-                linear-gradient(to top, var(--frame-color) 4px, transparent 4px) 100% 100%;
-            background-repeat: no-repeat; background-size: 20px 20px; pointer-events: none; margin: 5px;
-        }
+        .preview-box img { width: 100%; height: 100%; object-fit: contain; display: none; }
         
+        /* 只有大框框可以點擊 */
+        #main-preview-container { cursor: pointer; }
+        #main-preview-container:active { opacity: 0.8; }
+        
+        /* 小框框禁止點擊樣式 */
+        .sub-box { cursor: default; background: #e9ecef; border-color: #ccc; }
+        .sub-box::after { border-color: #ccc !important; background: none !important; } /* 移除小框的裝飾線 */
+
         .ratio-4-3 { aspect-ratio: 4/3; }
         .ratio-16-9 { aspect-ratio: 16/9; }
         .ratio-9-16 { aspect-ratio: 9/16; }
         .ratio-1-1 { aspect-ratio: 1/1; }
         .ratio-full { aspect-ratio: 9/16; }
-        
-        .ratio-tag {
-            position: absolute; top: 5px; left: 5px;
-            background: var(--frame-color); color: #000; font-weight: bold;
-            padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; pointer-events: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        
-        .img-label {
-            position: absolute; bottom: 5px; right: 5px;
-            background: rgba(0,0,0,0.5); color: #fff;
-            padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; pointer-events: none;
-        }
 
-        .preview-img-display { width: 100%; height: 100%; object-fit: contain; display: none; z-index: 1; }
-        .placeholder { color: #555; text-align: center; font-size: 0.85em; z-index: 0; font-weight: 500; line-height: 1.4;}
+        .ratio-tag { position: absolute; top: 5px; left: 5px; background: var(--frame-color); color: #000; font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; pointer-events: none; }
+        .img-label { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.5); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; pointer-events: none; }
+        .placeholder { color: #555; text-align: center; font-size: 0.85em; font-weight: 500; }
 
-        textarea { 
-            width: 100%; height: 220px; padding: 12px; border: 2px solid #eee; 
-            border-radius: 8px; font-size: 16px; box-sizing: border-box; resize: none; font-family: inherit;
-            transition: border 0.3s;
+        /* 暫存按鈕 */
+        .btn-push {
+            width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px;
+            background-color: var(--push-btn-color); color: white; font-weight: bold; font-size: 1rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
         }
+        .btn-push:active { transform: scale(0.98); }
+
+        #sub-photos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* --- 下拉選單 (尺寸) --- */
+        .select-wrapper { margin-bottom: 15px; }
+        .size-select { width: 100%; padding: 12px; font-size: 1.1rem; border: 2px solid #ccc; border-radius: 8px; outline: none; background: white; font-weight: bold; color: #333; }
+        .size-select:focus { border-color: var(--primary-color); }
+
+        /* --- 備註與語音 --- */
+        textarea { width: 100%; height: 150px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; resize: none; font-family: inherit; }
         textarea:focus { border-color: var(--primary-color); outline: none; }
-        
-        /* --- 語音閃爍動畫 --- */
-        @keyframes flash-red {
-            0% { border-color: #eee; box-shadow: none; background-color: white; }
-            50% { border-color: red; box-shadow: 0 0 15px rgba(255,0,0,0.6); background-color: #fff0f0; }
-            100% { border-color: #eee; box-shadow: none; background-color: white; }
-        }
-        
-        @keyframes flash-purple {
-            0% { border-color: #eee; box-shadow: none; background-color: white; }
-            50% { border-color: #a020f0; box-shadow: 0 0 10px rgba(160,32,240,0.4); background-color: #fcf0ff; }
-            100% { border-color: #eee; box-shadow: none; background-color: white; }
-        }
 
-        @keyframes flash-green {
-            0% { border-color: #eee; box-shadow: none; }
-            50% { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.3); }
-            100% { border-color: #eee; box-shadow: none; }
-        }
-
+        /* 動畫 CSS */
+        @keyframes flash-red { 0% { border-color: #eee; background-color: white; } 50% { border-color: red; background-color: #fff0f0; } 100% { border-color: #eee; background-color: white; } }
+        @keyframes flash-green { 0% { border-color: #eee; } 50% { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.3); } 100% { border-color: #eee; } }
+        @keyframes flash-purple { 0% { border-color: #eee; } 50% { border-color: #a020f0; background-color: #fcf0ff; } 100% { border-color: #eee; } }
         .anim-red { animation: flash-red 0.5s infinite; }
-        .anim-purple { animation: flash-purple 1s infinite; }
         .anim-green { animation: flash-green 2s infinite; }
-
-        /* --- 語音按鈕區塊 (已移除複製按鈕) --- */
-        .voice-copy-controls { 
-            margin-top: 10px; 
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        } 
-        
-        .lang-timer-container {
-            display: flex;
-            justify-content: space-between; 
-            align-items: center;
-        }
-
-        .quick-lang-container {
-            display: flex; 
-            align-items: center;
-        }
-        .lang-icon { font-size: 1.2em; margin-right: 5px; }
-        .small-select {
-            padding: 4px 8px; border: 1px solid #ccc; border-radius: 15px; 
-            font-size: 0.8rem; background-color: #fff; color: #555; outline: none;
-        }
-        
-        .voice-timer {
-            text-align: right; 
-            font-size: 0.9em; 
-            color: #555; 
-            font-weight: bold;
-        }
-
-        .voice-btn-wrapper {
-            width: 100%; 
-            height: 60px; /* 變寬，高度設為固定 */
-        }
-
-        .btn-voice { 
-            width: 100%; height: 100%; padding: 0; border: none; border-radius: 12px;
-            background-color: #17a2b8; color: white; font-weight: bold; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            font-size: 16px; 
-            flex-direction: row; /* 改為水平排列 */
-        }
-
-        .btn-voice.recording { background-color: var(--danger-color); animation: pulse 1s infinite; }
-        
-        /* --- 底部按鈕群組 --- */
-        .footer-btns-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px;
-            margin-top: 20px;
-            padding-bottom: 30px;
-        }
-        
-        .btn-main { 
-            width: 100%; 
-            padding: 15px; 
-            border: none; 
-            border-radius: 15px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            color: white; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            aspect-ratio: 1/1; 
-            line-height: 1.2;
-            flex-direction: column; 
-            text-align: center;
-        }
-        
-        .btn-drive.btn-full-width {
-            grid-column: 1 / -1; 
-            aspect-ratio: 4 / 1; 
-            flex-direction: row; 
-            gap: 15px;
-            font-size: 18px;
-            padding: 15px;
-        }
-        
-        .btn-save { background-color: var(--primary-color); }
-        .btn-view { background-color: #6c757d; }
-        .btn-drive { background-color: var(--drive-color); }
-
-        /* --- 設定彈窗 --- */
-        #settings-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: white; width: 90%; max-width: 400px; padding: 25px; 
-            border-radius: 15px; max-height: 85vh; overflow-y: auto;
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
-        .modal-group { margin-bottom: 15px; }
-        .modal-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #333; }
-        .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem;}
-        select.modal-input { background: white; }
-        .hint-text { font-size: 0.8rem; color: #888; margin-top: 3px; }
-
+        .anim-purple { animation: flash-purple 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        .voice-copy-controls { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .lang-timer-container { display: flex; justify-content: space-between; align-items: center; }
+        .small-select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 15px; font-size: 0.8rem; background: white; }
+        
+        .btn-voice { width: 100%; height: 50px; border: none; border-radius: 12px; background-color: #17a2b8; color: white; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; }
+        .btn-voice.recording { background-color: var(--danger-color); animation: pulse 1s infinite; }
+
+        /* --- 底部按鈕 --- */
+        .footer-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .btn-main { padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; min-height: 80px; }
+        .btn-save { background-color: var(--primary-color); grid-column: 1 / 2; }
+        .btn-view { background-color: #6c757d; grid-column: 2 / 3; }
+        .btn-drive { background-color: var(--drive-color); grid-column: 1 / -1; flex-direction: row; min-height: 50px;}
+
+        /* --- Modal 樣式 --- */
+        #settings-modal, #status-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 450px; padding: 25px; border-radius: 15px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+        
+        .option-manager { border: 1px solid #eee; padding: 10px; border-radius: 6px; max-height: 150px; overflow-y: auto; margin-top: 5px; }
+        .option-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #f9f9f9; }
+        .btn-del-opt { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.8rem; }
+        .add-opt-group { display: flex; gap: 5px; margin-top: 5px; }
+        .btn-add-opt { background: var(--primary-color); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
+
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="status-modal">
-        <div class="status-box">
+        <div class="modal-content" style="text-align: center; max-width: 300px;">
             <div id="status-spinner" class="spinner"></div>
-            <div id="status-icon" class="status-icon" style="display:none;"></div>
-            <h3 id="status-text" style="color:#333; margin:0;">Uploading...</h3>
-            <p id="status-subtext" style="color:#666; font-size:0.9em; margin-top:5px;">(資料上傳中...)</p>
-            <button id="status-close-btn" onclick="closeStatusModal()">OK</button>
+            <div id="status-icon" style="font-size: 40px; margin-bottom: 10px; display:none;"></div>
+            <h3 id="status-text">Processing...</h3>
+            <p id="status-subtext" style="color:#666; font-size:0.9em;"></p>
+            <button id="status-close-btn" onclick="closeStatusModal()" style="display:none; padding: 8px 20px; border:none; background:#007bff; color:white; border-radius:5px; margin: 10px auto 0 auto; cursor:pointer;">Close</button>
         </div>
     </div>
 
     <div id="app-screen">
-        <div class="author-header">Author: DERER LIN</div>
-
-        <div class="header">
-            <div class="header-btn" onclick="openSettings()" title="Settings (設定)">⚙️</div>
-            <div class="header-title">
-                <h2>FERIYA SHOP INOUT</h2>
+        
+        <div class="header-section">
+            <div class="author-header">Author: DERER LIN</div>
+            <div class="header">
+                <div class="header-btn" onclick="openSettings()">⚙️</div>
+                <div class="header-title"><h2>FERIYA SHOP INOUT</h2></div>
+                <div class="header-btn" onclick="openSettings()">⚙️</div>
             </div>
-            <div class="header-btn" onclick="openSettings()" title="Settings (設定)">⚙️</div>
         </div>
 
-        <div class="card">
-            <span class="section-title">1. Photos (圖片紀錄 - Max 5)</span>
-            <div class="photo-controls">
-                <button class="btn-half btn-cam" onclick="triggerCam(null)">📷 Camera (拍照)</button>
-                <button class="btn-half btn-gallery" onclick="triggerGallery(null)">🖼️ Gallery (相簿)</button>
-            </div>
-            
-            <div id="main-preview-container" class="preview-box ratio-4-3" onclick="triggerCam(0)" title="Click to change Main Photo">
-                <div class="ratio-tag" id="ratio-display-tag">Ratio: 4:3</div>
-                <div class="img-label">Main</div>
-                <span class="placeholder" id="ph-0">Main Photo<br>(主圖)</span>
-                <img id="preview-img-0" class="preview-img-display">
-            </div>
-
-            <div id="sub-photos-grid">
-                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(1)">
-                    <div class="img-label">#2</div>
-                    <span class="placeholder" id="ph-1">Photo 2</span>
-                    <img id="preview-img-1" class="preview-img-display">
-                </div>
-                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(2)">
-                    <div class="img-label">#3</div>
-                    <span class="placeholder" id="ph-2">Photo 3</span>
-                    <img id="preview-img-2" class="preview-img-display">
-                </div>
-                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(3)">
-                    <div class="img-label">#4</div>
-                    <span class="placeholder" id="ph-3">Photo 4</span>
-                    <img id="preview-img-3" class="preview-img-display">
-                </div>
-                <div class="preview-box ratio-4-3 sub-box" onclick="triggerCam(4)">
-                    <div class="img-label">#5</div>
-                    <span class="placeholder" id="ph-4">Photo 5</span>
-                    <img id="preview-img-4" class="preview-img-display">
-                </div>
-            </div>
-            
-            <input type="file" id="input-cam" accept="image/*" capture="environment" class="hidden" onchange="handleFile(this)">
-            <input type="file" id="input-gallery" accept="image/*" class="hidden" onchange="handleFile(this)">
-        </div>
-
-        <div class="card" id="note-card">
-            <span class="section-title">2. Note (文字/語音)</span>
-            <textarea id="noteInput" placeholder="After taking photos, type here or use voice... (拍照後，在此輸入或使用語音)"></textarea>
-            
-            <div class="voice-copy-controls">
-                
-                <div class="lang-timer-container">
-                    <div class="quick-lang-container">
-                        <span class="lang-icon">🌐</span>
-                        <select id="main-lang" class="small-select" onchange="syncLanguage('main')">
-                            <option value="cmn-Hant-TW">中文 (繁體)</option>
-                            <option value="en-US">English</option>
-                            <option value="ja-JP">日本語</option>
-                            <option value="hi-IN">Hindi (印地語)</option>
-                        </select>
-                    </div>
-
-                    <div class="voice-timer">
-                        Time left: <span id="display-timeout" style="color:#d63384; font-size:1.1em;">10</span> s
-                    </div>
-                </div>
-
-                <div class="voice-btn-wrapper">
-                    <button type="button" class="btn-voice" id="voiceBtn" onclick="toggleVoice()">
-                        🎤 Start Voice (開始錄音)
-                    </button>
+        <div class="left-column">
+            <div class="card">
+                <span class="section-title">1. Photos (Max 5)</span>
+                <div class="photo-controls">
+                    <button class="btn-half btn-cam" onclick="triggerCam()">📷 Camera</button>
+                    <button class="btn-half btn-gallery" onclick="triggerGallery()">🖼️ Gallery</button>
                 </div>
                 
+                <div id="main-preview-container" class="preview-box ratio-4-3" onclick="triggerCam()">
+                    <div class="ratio-tag" id="ratio-display-tag">Ratio: 4:3</div>
+                    <div class="img-label">Current (Last)</div>
+                    <span class="placeholder" id="ph-0">Click to Take Photo<br>(點擊拍照)</span>
+                    <img id="preview-img-0">
                 </div>
 
+                <button class="btn-push" onclick="pushToHistory()">
+                    ⬇️ Push to List (暫存/推入下方)
+                </button>
+
+                <div id="sub-photos-grid">
+                    <div class="preview-box ratio-4-3 sub-box">
+                        <div class="img-label">#1</div>
+                        <span class="placeholder" id="ph-1">History 1</span>
+                        <img id="preview-img-1">
+                    </div>
+                    <div class="preview-box ratio-4-3 sub-box">
+                        <div class="img-label">#2</div>
+                        <span class="placeholder" id="ph-2">History 2</span>
+                        <img id="preview-img-2">
+                    </div>
+                    <div class="preview-box ratio-4-3 sub-box">
+                        <div class="img-label">#3</div>
+                        <span class="placeholder" id="ph-3">History 3</span>
+                        <img id="preview-img-3">
+                    </div>
+                    <div class="preview-box ratio-4-3 sub-box">
+                        <div class="img-label">#4</div>
+                        <span class="placeholder" id="ph-4">History 4</span>
+                        <img id="preview-img-4">
+                    </div>
+                </div>
+                
+                <input type="file" id="input-cam" accept="image/*" capture="environment" class="hidden" onchange="handleFile(this)">
+                <input type="file" id="input-gallery" accept="image/*" class="hidden" onchange="handleFile(this)">
+            </div>
         </div>
 
-        <div class="footer-btns-grid">
-            <button class="btn-main btn-save" id="saveBtn" onclick="saveToCloud()">
-                💾<br>Save to Cloud<br>(存檔至雲端)
-            </button>
-            <button class="btn-main btn-view" onclick="viewExcel()">
-                📊<br>View Excel<br>(檢視 Excel)
-            </button>
-            <button class="btn-main btn-drive btn-full-width" onclick="viewDriveFolder()">
-                📂 View Photos (檢視雲端照片)
-            </button>
+        <div class="right-column">
+            
+            <div class="card">
+                <span class="section-title">2. Size Selection (尺寸)</span>
+                <div class="select-wrapper">
+                    <select id="size-select" class="size-select"></select>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="section-title">3. Note (文字/語音)</span>
+                <textarea id="noteInput" placeholder="Type here or use voice..."></textarea>
+                
+                <div class="voice-copy-controls">
+                    <div class="lang-timer-container">
+                        <div style="display:flex; align-items:center;">
+                            <span style="font-size:1.2em; margin-right:5px;">🌐</span>
+                            <select id="main-lang" class="small-select" onchange="syncLanguage('main')">
+                                <option value="cmn-Hant-TW">中文</option>
+                                <option value="en-US">English</option>
+                                <option value="ja-JP">日本語</option>
+                            </select>
+                        </div>
+                        <div style="font-weight:bold; color:#555;">Time: <span id="display-timeout" style="color:#d63384;">10</span>s</div>
+                    </div>
+                    <button type="button" class="btn-voice" id="voiceBtn" onclick="toggleVoice()">🎤 Start Voice</button>
+                </div>
+            </div>
+
+            <div class="footer-btns-grid">
+                <button class="btn-main btn-save" id="saveBtn" onclick="saveToCloud()">💾<br>Save</button>
+                <button class="btn-main btn-view" onclick="viewExcel()">📊<br>View Excel</button>
+                <button class="btn-main btn-drive" onclick="viewDriveFolder()">📂 View Drive Photos</button>
+            </div>
         </div>
     </div>
 
@@ -386,174 +280,126 @@
             </div>
             
             <div class="modal-group">
-                <label>1. Voice Timeout (錄音總秒數)</label>
+                <label>1. Google Drive Folder ID (資料夾 ID)</label>
+                <input type="text" id="set-folder-id" class="modal-input" placeholder="Enter Folder ID here">
+                <div style="font-size:0.8em; color:#666; margin-top:3px;">* 預設: 1f0F1CQlzztz551hdLVEyON4gR2KFs3m3</div>
+            </div>
+
+            <div class="modal-group">
+                <label>2. Size Options (管理尺寸選項)</label>
+                <div class="option-manager"><div id="size-options-list"></div></div>
+                <div class="add-opt-group">
+                    <input type="text" id="new-size-input" class="modal-input" placeholder="New Size" style="flex:1;">
+                    <button class="btn-add-opt" onclick="addSizeOption()">Add</button>
+                </div>
+            </div>
+
+            <div class="modal-group">
+                <label>3. Voice Timeout (錄音秒數)</label>
                 <input type="number" id="set-timeout" class="modal-input" value="10">
             </div>
 
             <div class="modal-group">
-                <label style="color:red;">2. Red Frame Warning (紅框閃爍警示秒數)</label>
-                <input type="number" id="set-warning" class="modal-input" value="3" placeholder="e.g. 3">
-            </div>
-
-            <div class="modal-group">
-                <label>3. Language (語音辨識語言)</label>
-                <select id="set-lang" class="modal-input" onchange="syncLanguage('settings')">
-                    <option value="cmn-Hant-TW">Traditional Chinese (繁體中文)</option>
-                    <option value="en-US">English (英文)</option>
-                    <option value="ja-JP">Japanese (日文)</option>
-                    <option value="hi-IN">Hindi (印地語)</option>
-                </select>
-            </div>
-
-            <div class="modal-group">
-                <label>4. Photo Aspect Ratio (照片比例)</label>
+                <label>4. Photo Ratio (比例)</label>
                 <select id="set-ratio" class="modal-input">
-                    <option value="4/3">4:3 (Standard)</option>
-                    <option value="16/9">16:9 (Wide)</option>
-                    <option value="9/16">9:16 (Vertical / 直式)</option>
-                    <option value="1/1">1:1 (Square)</option>
-                    <option value="FULL">FULL (Original / 全畫面)</option>
+                    <option value="4/3">4:3</option>
+                    <option value="16/9">16:9</option>
+                    <option value="9/16">9:16 (Vertical)</option>
+                    <option value="1/1">1:1</option>
+                    <option value="FULL">FULL (Original)</option>
                 </select>
-                <div class="hint-text">* Applies to ALL 5 photos.</div>
             </div>
 
-            <div style="text-align: center; color: var(--primary-color); font-size: 0.9em; margin-top: 15px;">
-                <p>✅ Cloud Paths are Locked (System Mode)</p>
-            </div>
-
-            <button class="btn-main btn-save" style="aspect-ratio: unset; flex-direction: row; padding: 15px;" onclick="saveSettings()">Save Settings (儲存設定)</button>
+            <button class="btn-main btn-save" style="width:100%; min-height:50px; flex-direction:row;" onclick="saveSettings()">Save Settings</button>
         </div>
     </div>
 
 <script>
-    // ================= 初始化 & FIXED PATHS =================
-    
+    // ================= CONFIG =================
     const FIXED_SCRIPT_ID = "AKfycbzMVIqiYBPqiiSgByGX0sWEh_N0sGUAjgfC-3F8Kq3FQ9jTq-hmQR6Cts6N1nZisQ73Nw";
     const FIXED_SHEET_ID = "1Bc6rFBxtUPiE6J835Xt5Eq9PoVtceFi0FlTUbY9a7oc/edit?gid=0#gid=0"; 
-    const FIXED_FOLDER_ID = "1f0F1CQlzztz551hdLVEyON4gR2KFs3m3";
+    const DEFAULT_FOLDER_ID = "1f0F1CQlzztz551hdLVEyON4gR2KFs3m3";
+    const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL", "3XL"];
 
-    // 儲存 5 張圖片的 Array，初始化為 null
+    // 儲存邏輯: 
+    // Index 0 = Main Frame (暫存區/最後一張)
+    // Index 1 = History 1 (最新的歷史)
+    // Index 2 = History 2
+    // Index 3 = History 3
+    // Index 4 = History 4 (最舊的歷史)
     let storedImages = [null, null, null, null, null];
-    let currentTargetIndex = 0; // 目前正在操作哪一張圖片 (0~4)
-
-    let recognition;
     
-    let isRecording = false; 
-    let isManualStop = false; 
-    let voiceTimer = null; 
-    let countdownInterval = null; 
-    let punctuationTimer = null; 
-    let timeLeft = 0; 
-    let snapshotText = ""; 
+    let recognition;
+    let isRecording = false;
+    let countdownInterval, punctuationTimer;
+    let timeLeft = 0;
+    let sizeOptions = [];
 
     window.onload = function() {
-        showApp();
+        const savedFolderId = localStorage.getItem("cfg_folderId");
+        if (!savedFolderId) localStorage.setItem("cfg_folderId", DEFAULT_FOLDER_ID);
+
+        const savedSizes = localStorage.getItem("cfg_sizes");
+        if (savedSizes) sizeOptions = JSON.parse(savedSizes);
+        else {
+            sizeOptions = [...DEFAULT_SIZES];
+            localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
+        }
+
+        renderSizeDropdown();
         loadSettingsToUI();
+        applySettings();
     };
 
-    function showApp() {
-        document.getElementById('app-screen').style.display = 'block';
-        applySettings(); 
-    }
-
-    // ================= 設定功能 & 語言同步 =================
-    function openSettings() {
-        loadSettingsToUI();
-        document.getElementById('settings-modal').style.display = 'flex';
-    }
-    function closeSettings() {
-        document.getElementById('settings-modal').style.display = 'none';
-    }
-    
-    function syncLanguage(source) {
-        let val;
-        if (source === 'main') {
-            val = document.getElementById('main-lang').value;
-            document.getElementById('set-lang').value = val;
-        } else {
-            val = document.getElementById('set-lang').value;
-            document.getElementById('main-lang').value = val;
-        }
-        localStorage.setItem("cfg_lang", val);
-    }
-
-    function saveSettings() {
-        const timeout = document.getElementById('set-timeout').value;
-        const warning = document.getElementById('set-warning').value;
-        const lang = document.getElementById('set-lang').value; 
-        const ratio = document.getElementById('set-ratio').value;
-
-        localStorage.setItem("cfg_timeout", timeout);
-        localStorage.setItem("cfg_warning", warning);
-        localStorage.setItem("cfg_lang", lang);
-        localStorage.setItem("cfg_ratio", ratio);
-        
-        document.getElementById('main-lang').value = lang;
-
-        alert("Settings Saved!");
-        closeSettings();
-        applySettings();
-    }
-
-    function loadSettingsToUI() {
-        document.getElementById('set-timeout').value = localStorage.getItem("cfg_timeout") || "10";
-        document.getElementById('set-warning').value = localStorage.getItem("cfg_warning") || "3";
-        const savedLang = localStorage.getItem("cfg_lang") || "cmn-Hant-TW";
-        document.getElementById('set-lang').value = savedLang;
-        document.getElementById('main-lang').value = savedLang;
-        document.getElementById('set-ratio').value = localStorage.getItem("cfg_ratio") || "4/3";
-    }
-
-    function applySettings() {
-        const timeout = localStorage.getItem("cfg_timeout") || "10";
-        document.getElementById('display-timeout').innerText = timeout;
-        const ratio = localStorage.getItem("cfg_ratio") || "4/3";
-        
-        // 套用比例到所有圖片容器 (0~4)
-        const allBoxes = document.querySelectorAll('.preview-box');
-        allBoxes.forEach(container => {
-            container.className = "preview-box"; 
-            if(container.id !== "main-preview-container") container.classList.add("sub-box");
+    // ================= UI UPDATE =================
+    function updatePhotoUI() {
+        // 更新所有圖片框
+        for(let i=0; i<5; i++) {
+            const imgEl = document.getElementById(`preview-img-${i}`);
+            const phEl = document.getElementById(`ph-${i}`);
             
-            container.style.aspectRatio = "";
-
-            if(ratio === "4/3") container.classList.add("ratio-4-3");
-            else if(ratio === "16/9") container.classList.add("ratio-16-9");
-            else if(ratio === "9/16") container.classList.add("ratio-9-16");
-            else if(ratio === "1/1") container.classList.add("ratio-1-1");
-            else if(ratio === "FULL") container.classList.add("ratio-full");
-        });
-
-        const tag = document.getElementById('ratio-display-tag');
-        if(ratio === "FULL") tag.innerText = "Ratio: Full";
-        else tag.innerText = "Ratio: " + ratio.replace("/", ":");
+            if (storedImages[i]) {
+                imgEl.src = storedImages[i];
+                imgEl.style.display = 'block';
+                if(phEl) phEl.style.display = 'none';
+                
+                // 如果是 FULL 模式，調整容器比例
+                const ratio = localStorage.getItem("cfg_ratio") || "4/3";
+                if(ratio === "FULL") {
+                    // 這裡簡單處理，實際可以根據 image width/height 調整
+                    // 但因為 storedImages 只有 base64，無法立即得知原始比例，
+                    // 若需要嚴格比例，需在 processCanvas 時紀錄
+                }
+            } else {
+                imgEl.src = "";
+                imgEl.style.display = 'none';
+                if(phEl) phEl.style.display = 'block';
+            }
+        }
     }
 
-    // ================= 圖片處理 (支援5張) =================
+    // ================= PUSH LOGIC (暫存) =================
+    function pushToHistory() {
+        if (!storedImages[0]) {
+            alert("Main photo is empty! (主畫面沒有照片)");
+            return;
+        }
+
+        // 陣列位移邏輯: 把歷史往下推 (FIFO or LIFO)
+        // 這裡採用: 1->2, 2->3, 3->4. 0->1.
+        storedImages[4] = storedImages[3];
+        storedImages[3] = storedImages[2];
+        storedImages[2] = storedImages[1];
+        storedImages[1] = storedImages[0];
+        storedImages[0] = null; // 清空主畫面以便拍下一張
+
+        updatePhotoUI();
+    }
+
+    // ================= IMAGE CAPTURE (Only Index 0) =================
+    function triggerCam() { document.getElementById('input-cam').click(); }
+    function triggerGallery() { document.getElementById('input-gallery').click(); }
     
-    // index 為 null 代表按上方按鈕，預設操作目前選定或第一張空白的
-    // index 為數字 (0-4) 代表直接點擊某個框框
-    function triggerCam(index) {
-        if (index !== null) {
-            currentTargetIndex = index;
-        } else {
-            // 自動尋找第一個空的，如果都滿了就覆蓋第一張
-            let emptyIndex = storedImages.findIndex(img => img === null);
-            currentTargetIndex = (emptyIndex === -1) ? 0 : emptyIndex;
-        }
-        document.getElementById('input-cam').click(); 
-    }
-
-    function triggerGallery(index) {
-        if (index !== null) {
-            currentTargetIndex = index;
-        } else {
-            let emptyIndex = storedImages.findIndex(img => img === null);
-            currentTargetIndex = (emptyIndex === -1) ? 0 : emptyIndex;
-        }
-        document.getElementById('input-gallery').click(); 
-    }
-
     function handleFile(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
@@ -564,7 +410,6 @@
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
-            // 重置 input 以便重複選擇同一檔案
             input.value = '';
         }
     }
@@ -573,16 +418,16 @@
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const ratioStr = localStorage.getItem("cfg_ratio") || "4/3";
-        
         let targetRatio = 4/3;
-        let isFull = false;
+        let isFull = (ratioStr === "FULL");
 
-        if(ratioStr === "FULL") isFull = true;
-        else if(ratioStr === "16/9") targetRatio = 16/9;
-        else if(ratioStr === "9/16") targetRatio = 9/16;
-        else if(ratioStr === "1/1") targetRatio = 1;
+        if(!isFull) {
+            if(ratioStr === "16/9") targetRatio = 16/9;
+            else if(ratioStr === "9/16") targetRatio = 9/16;
+            else if(ratioStr === "1/1") targetRatio = 1;
+        }
 
-        let srcW = img.width; let srcH = img.height;
+        let srcW = img.width, srcH = img.height;
         let drawW, drawH, startX, startY;
 
         if (isFull) {
@@ -604,249 +449,171 @@
 
         ctx.drawImage(img, startX, startY, drawW, drawH, 0, 0, canvas.width, canvas.height);
         
-        // 儲存到 Array 對應位置
         const base64 = canvas.toDataURL('image/jpeg', 0.8);
-        storedImages[currentTargetIndex] = base64;
         
-        // 更新 UI
-        const previewImg = document.getElementById(`preview-img-${currentTargetIndex}`);
-        const placeholder = document.getElementById(`ph-${currentTargetIndex}`);
-        
-        previewImg.src = base64;
-        previewImg.style.display = 'block';
-        if(placeholder) placeholder.style.display = 'none';
+        // 永遠只更新 Index 0 (主畫面)
+        storedImages[0] = base64;
+        updatePhotoUI();
 
-        // 如果是 Full 模式，調整該容器比例
         if(isFull) {
-             const container = previewImg.parentElement;
+             const container = document.getElementById('main-preview-container');
              container.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
         }
     }
 
-    // ================= 語音功能 (已調整) =================
+    // ================= SETTINGS LOGIC =================
+    function openSettings() { loadSettingsToUI(); renderOptionListInSettings(); document.getElementById('settings-modal').style.display = 'flex'; }
+    function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+    function saveSettings() {
+        localStorage.setItem("cfg_timeout", document.getElementById('set-timeout').value);
+        localStorage.setItem("cfg_ratio", document.getElementById('set-ratio').value);
+        const fid = document.getElementById('set-folder-id').value.trim();
+        localStorage.setItem("cfg_folderId", fid || DEFAULT_FOLDER_ID);
+        alert("Settings Saved!"); closeSettings(); applySettings();
+    }
+    function loadSettingsToUI() {
+        document.getElementById('set-timeout').value = localStorage.getItem("cfg_timeout") || "10";
+        document.getElementById('set-ratio').value = localStorage.getItem("cfg_ratio") || "4/3";
+        document.getElementById('set-folder-id').value = localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID;
+    }
+    function applySettings() {
+        const timeout = localStorage.getItem("cfg_timeout") || "10";
+        document.getElementById('display-timeout').innerText = timeout;
+        const ratio = localStorage.getItem("cfg_ratio") || "4/3";
+        
+        const allBoxes = document.querySelectorAll('.preview-box');
+        allBoxes.forEach(container => {
+            container.style.aspectRatio = "";
+            container.className = "preview-box";
+            if(container.id !== "main-preview-container") container.classList.add("sub-box");
+            
+            if(ratio === "4/3") container.classList.add("ratio-4-3");
+            else if(ratio === "16/9") container.classList.add("ratio-16-9");
+            else if(ratio === "9/16") container.classList.add("ratio-9-16");
+            else if(ratio === "1/1") container.classList.add("ratio-1-1");
+            else if(ratio === "FULL") container.classList.add("ratio-full");
+        });
+        document.getElementById('ratio-display-tag').innerText = "Ratio: " + (ratio==="FULL"?"Full":ratio.replace("/",":"));
+    }
+
+    // ================= SIZE OPTIONS =================
+    function renderSizeDropdown() {
+        const select = document.getElementById('size-select'); select.innerHTML = "";
+        sizeOptions.forEach(size => { let opt = document.createElement('option'); opt.value = size; opt.innerText = size; select.appendChild(opt); });
+    }
+    function renderOptionListInSettings() {
+        const container = document.getElementById('size-options-list'); container.innerHTML = "";
+        sizeOptions.forEach((size, index) => {
+            let div = document.createElement('div'); div.className = "option-item";
+            div.innerHTML = `<span>${size}</span> <button class="btn-del-opt" onclick="deleteSizeOption(${index})">Delete</button>`;
+            container.appendChild(div);
+        });
+    }
+    function addSizeOption() {
+        const val = document.getElementById('new-size-input').value.trim().toUpperCase();
+        if(val && !sizeOptions.includes(val)) {
+            sizeOptions.push(val); localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
+            renderOptionListInSettings(); renderSizeDropdown(); document.getElementById('new-size-input').value = "";
+        }
+    }
+    function deleteSizeOption(index) {
+        if(confirm("Delete?")) {
+            sizeOptions.splice(index, 1); localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
+            renderOptionListInSettings(); renderSizeDropdown();
+        }
+    }
+
+    // ================= VOICE LOGIC =================
     function toggleVoice() {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            alert("Browser not supported (請使用 Chrome/Edge)"); return;
-        }
-        if (isRecording) {
-            manualStopVoice(); 
-        } else {
-            startVoice();
-        }
+        if (!('webkitSpeechRecognition' in window)) { alert("Use Chrome!"); return; }
+        if (isRecording) stopVoice(); else startVoice();
     }
-    
     function startVoice() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        
+        recognition = new webkitSpeechRecognition();
         recognition.lang = document.getElementById('main-lang').value || 'cmn-Hant-TW';
-        recognition.continuous = true; 
-        recognition.interimResults = true; 
-
-        isRecording = true;
-        isManualStop = false; 
-        document.getElementById('voiceBtn').classList.add('recording');
-        document.getElementById('voiceBtn').innerHTML = "🛑 Stop Recording (停止錄音)"; 
-        
-        snapshotText = document.getElementById('noteInput').value;
-        if(snapshotText.length > 0 && !snapshotText.endsWith(" ")) {
-            snapshotText += " ";
-        }
-
-        const timeoutSec = parseInt(localStorage.getItem("cfg_timeout") || "10");
-        const warningSec = parseInt(localStorage.getItem("cfg_warning") || "3");
-        const purpleSec = warningSec + 5; 
-        
-        timeLeft = timeoutSec;
-        document.getElementById('display-timeout').innerText = timeLeft;
-        
-        const noteInput = document.getElementById('noteInput');
-        noteInput.classList.remove('anim-red', 'anim-purple', 'anim-green');
-        noteInput.classList.add('anim-green'); 
-
-        if(countdownInterval) clearInterval(countdownInterval);
-
+        recognition.continuous = true; recognition.interimResults = true;
+        isRecording = true; document.getElementById('voiceBtn').classList.add('recording');
+        document.getElementById('voiceBtn').innerText = "🛑 Stop";
+        let startText = document.getElementById('noteInput').value;
+        timeLeft = parseInt(localStorage.getItem("cfg_timeout") || "10");
         countdownInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById('display-timeout').innerText = timeLeft;
-
-            noteInput.classList.remove('anim-red', 'anim-purple', 'anim-green');
-
-            if(timeLeft <= warningSec) {
-                noteInput.classList.add('anim-red');
-            } else if (timeLeft <= purpleSec) {
-                noteInput.classList.add('anim-purple');
-            } else {
-                noteInput.classList.add('anim-green');
-            }
-
-            if(timeLeft <= 0) {
-                manualStopVoice(); 
-            }
+            timeLeft--; document.getElementById('display-timeout').innerText = timeLeft;
+            const noteInput = document.getElementById('noteInput');
+            noteInput.classList.remove('anim-red','anim-green','anim-purple');
+            if(timeLeft<=3) noteInput.classList.add('anim-red'); else if(timeLeft<=8) noteInput.classList.add('anim-purple'); else noteInput.classList.add('anim-green');
+            if(timeLeft <= 0) stopVoice();
         }, 1000);
-
-        recognition.onresult = function(event) {
-            let currentSessionText = ''; 
-            
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                currentSessionText += event.results[i][0].transcript;
-            }
-
-            const noteArea = document.getElementById('noteInput');
-            noteArea.value = snapshotText + currentSessionText;
-            noteArea.scrollTop = noteArea.scrollHeight;
-
-            if(punctuationTimer) clearTimeout(punctuationTimer);
-            
-            if(currentSessionText.trim().length > 0) {
-                punctuationTimer = setTimeout(() => {
-                    recognition.stop(); 
-                }, 1000);
-            }
+        recognition.onresult = (event) => {
+            let txt = ""; for (let i = event.resultIndex; i < event.results.length; ++i) txt += event.results[i][0].transcript;
+            document.getElementById('noteInput').value = startText + txt;
+            if(txt.trim()) { clearTimeout(punctuationTimer); punctuationTimer = setTimeout(stopVoice, 1500); }
         };
-
-        recognition.onend = function() {
-            if(punctuationTimer) clearTimeout(punctuationTimer);
-
-            if (isRecording && !isManualStop && timeLeft > 0) {
-                let currentVal = document.getElementById('noteInput').value.trim();
-                if(currentVal.length > 0) {
-                    const lastChar = currentVal.slice(-1);
-                    const marks = ["，", "。", ",", "."];
-                    if(!marks.includes(lastChar)) {
-                        const lang = document.getElementById('main-lang').value;
-                        const mark = lang.includes('en') ? ", " : "，";
-                        currentVal += mark;
-                        document.getElementById('noteInput').value = currentVal;
-                    }
-                }
-
-                snapshotText = document.getElementById('noteInput').value;
-                if(snapshotText.length > 0 && !snapshotText.endsWith(" ")) {
-                    snapshotText += " "; 
-                }
-                recognition.start(); 
-            } else {
-                resetVoiceUI();
-            }
-        };
-        
-        try {
-            recognition.start();
-        } catch(e) {
-            console.error("Start error", e);
-        }
+        recognition.start();
     }
-
-    function manualStopVoice() {
-        isRecording = false; 
-        isManualStop = true; 
-        if(recognition) recognition.stop();
-        resetVoiceUI();
-    }
-
-    function resetVoiceUI() {
-        if(countdownInterval) clearInterval(countdownInterval);
-        if(punctuationTimer) clearTimeout(punctuationTimer);
-        
+    function stopVoice() {
+        isRecording = false; if(recognition) recognition.stop();
+        clearInterval(countdownInterval); clearTimeout(punctuationTimer);
         document.getElementById('voiceBtn').classList.remove('recording');
-        document.getElementById('voiceBtn').innerHTML = "🎤 Start Voice (開始錄音)"; 
-        
-        const noteInput = document.getElementById('noteInput');
-        noteInput.classList.remove('anim-red', 'anim-purple', 'anim-green');
-        
-        const originalTime = localStorage.getItem("cfg_timeout") || "10";
-        document.getElementById('display-timeout').innerText = originalTime;
+        document.getElementById('voiceBtn').innerText = "🎤 Start Voice";
+        document.getElementById('noteInput').className = "";
+        document.getElementById('display-timeout').innerText = localStorage.getItem("cfg_timeout");
+        let val = document.getElementById('noteInput').value.trim();
+        if(val && !/[，。,.]/.test(val.slice(-1))) val += "，";
+        document.getElementById('noteInput').value = val;
+    }
+    function syncLanguage(src) { 
+        if (src === 'main') document.getElementById('set-lang').value = document.getElementById('main-lang').value;
+        else document.getElementById('main-lang').value = document.getElementById('set-lang').value;
     }
 
-    // ================= 上傳與檢視 (更新為多圖) =================
-    function showStatus(type, title, subtitle) {
-        const modal = document.getElementById('status-modal');
-        const spinner = document.getElementById('status-spinner');
-        const icon = document.getElementById('status-icon');
-        const text = document.getElementById('status-text');
-        const sub = document.getElementById('status-subtext');
-        const closeBtn = document.getElementById('status-close-btn');
-
-        modal.style.display = 'flex';
-        text.innerText = title; sub.innerText = subtitle;
-
-        if(type === 'loading') {
-            spinner.style.display = 'block'; icon.style.display = 'none'; closeBtn.style.display = 'none';
-        } else if(type === 'success') {
-            spinner.style.display = 'none'; icon.style.display = 'block'; icon.innerText = '✅'; closeBtn.style.display = 'none';
-        } else if(type === 'error') {
-            spinner.style.display = 'none'; icon.style.display = 'block'; icon.innerText = '❌'; closeBtn.style.display = 'block';
-        }
+    // ================= CLOUD =================
+    function showStatus(type, text, sub) {
+        document.getElementById('status-modal').style.display = 'flex';
+        document.getElementById('status-text').innerText = text;
+        document.getElementById('status-subtext').innerText = sub;
+        document.getElementById('status-spinner').style.display = (type==='loading')?'block':'none';
+        document.getElementById('status-close-btn').style.display = (type!=='loading')?'block':'none';
+        document.getElementById('status-icon').style.display = (type!=='loading')?'block':'none';
+        document.getElementById('status-icon').innerText = (type==='success')?'✅':'❌';
     }
-
     function closeStatusModal() { document.getElementById('status-modal').style.display = 'none'; }
 
     function saveToCloud() {
         const note = document.getElementById('noteInput').value;
-        const folderId = FIXED_FOLDER_ID;
-        const scriptUrl = `https://script.google.com/macros/s/${FIXED_SCRIPT_ID}/exec`;
-        
-        // 檢查是否有任何內容
-        const hasImage = storedImages.some(img => img !== null);
-        if(!hasImage && !note) {
-            alert("Empty! Please take at least one photo or write a note."); return;
-        }
+        const size = document.getElementById('size-select').value;
+        const folderId = localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID;
 
-        const btn = document.getElementById('saveBtn');
-        btn.disabled = true;
-        showStatus('loading', 'Uploading...', '資料上傳中...');
+        // 檢查是否有任何照片 (Main 或是 History 中有都算)
+        if(!storedImages.some(x=>x) && !note) { alert("Empty!"); return; }
 
-        const data = { 
-            note: note, 
-            images: storedImages, // 這裡傳送的是陣列 (Array)
-            folderId: folderId
-        };
+        showStatus('loading', 'Uploading...', 'Please wait...');
+        const btn = document.getElementById('saveBtn'); btn.disabled = true;
 
-        fetch(scriptUrl, {
+        fetch(`https://script.google.com/macros/s/${FIXED_SCRIPT_ID}/exec`, {
             method: 'POST',
-            body: JSON.stringify(data)
+            body: JSON.stringify({ 
+                note: note, 
+                images: storedImages, // 傳送整個陣列 (Index 0 是最新的)
+                folderId: folderId, 
+                size: size 
+            })
         })
         .then(r => r.json())
-        .then(res => {
-            showStatus('success', 'Upload Success!', '上傳成功！');
-            // 清空所有內容
+        .then(() => {
+            showStatus('success', 'Done!', 'Upload Successful');
             document.getElementById('noteInput').value = "";
-            storedImages = [null, null, null, null, null];
-            
-            // 重置所有圖片顯示
-            for(let i=0; i<5; i++) {
-                document.getElementById(`preview-img-${i}`).style.display = 'none';
-                document.getElementById(`ph-${i}`).style.display = 'block';
-            }
-            applySettings();
-            setTimeout(() => { closeStatusModal(); }, 2000);
+            storedImages = [null,null,null,null,null];
+            updatePhotoUI(); // 重置圖片介面
         })
-        .catch(e => {
-            console.error(e);
-            showStatus('error', 'Upload Failed', '上傳失敗，請檢查網路或 GAS 設定。');
-        })
-        .finally(() => {
-            btn.disabled = false;
-        });
+        .catch(e => showStatus('error', 'Error', 'Upload Failed'))
+        .finally(() => btn.disabled = false);
     }
 
-    function viewExcel() {
-        const url = `https://docs.google.com/spreadsheets/d/${FIXED_SHEET_ID}/edit`;
-        window.open(url, '_blank');
-    }
-
+    function viewExcel() { window.open(`https://docs.google.com/spreadsheets/d/${FIXED_SHEET_ID}/edit`, '_blank'); }
     function viewDriveFolder() {
-        const folderId = FIXED_FOLDER_ID;
-        if(folderId && folderId.trim() !== "") {
-            window.open("https://drive.google.com/drive/folders/" + folderId, '_blank');
-        } else {
-            if(confirm("Folder ID not set. Open Google Drive Root?")) {
-                window.open("https://drive.google.com/drive/my-drive", '_blank');
-            }
-        }
+        const folderId = localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID;
+        window.open("https://drive.google.com/drive/folders/" + folderId, '_blank');
     }
 </script>
-
 </body>
 </html>
