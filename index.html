@@ -13,7 +13,6 @@
             --drive-color: #198754; 
             --frame-color: #00e600; 
             --text-color: #333;
-            --push-btn-color: #6610f2; /* 紫色按鈕 */
         }
         * { box-sizing: border-box; }
 
@@ -26,42 +25,52 @@
             color: var(--text-color);
         }
 
-        /* --- 佈局容器 (RWD) --- */
+        /* --- 佈局容器 (Full Screen Layout) --- */
         #app-screen { 
             width: 100%; 
-            padding: 20px; 
+            padding: 15px; 
             display: flex;
             flex-direction: column;
             gap: 15px;
+            height: 100vh; /* 滿高 */
         }
 
-        /* 電腦版樣式 */
+        /* 電腦版樣式 (滿版) */
         @media (min-width: 768px) {
             #app-screen {
-                max-width: 1400px;
                 display: grid;
-                grid-template-columns: 1.2fr 0.8fr; 
+                grid-template-columns: 1fr 1fr; /* 左右各半，或依需求調整如 1.2fr 0.8fr */
                 grid-template-rows: auto 1fr;
-                align-items: start;
-                height: 100vh;
-                overflow-y: hidden; 
+                gap: 20px;
+                overflow: hidden; /* 隱藏主捲軸 */
             }
             .header-section { grid-column: 1 / -1; }
-            .left-column { height: 90vh; overflow-y: auto; padding-right: 10px; }
-            .right-column { height: 90vh; overflow-y: auto; padding-left: 10px; display: flex; flex-direction: column; gap: 15px; }
+            .left-column { 
+                height: 100%; 
+                overflow-y: auto; 
+                padding-right: 10px; 
+            }
+            .right-column { 
+                height: 100%; 
+                overflow-y: auto; 
+                padding-left: 10px; 
+                display: flex; 
+                flex-direction: column; 
+                gap: 15px; 
+            }
         }
 
         /* 手機版樣式 */
         @media (max-width: 767px) {
-            #app-screen { max-width: 100%; overflow-x: hidden; }
+            #app-screen { height: auto; overflow-x: hidden; }
             .left-column, .right-column { width: 100%; }
         }
 
         /* --- 通用元件 --- */
-        .card { background: var(--card-bg); padding: 15px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .section-title { font-weight: bold; color: #555; margin-bottom: 10px; display: block; font-size: 1rem; }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; }
+        .section-title { font-weight: bold; color: #555; margin-bottom: 8px; display: block; font-size: 0.95rem; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .header-btn { 
             font-size: 24px; cursor: pointer; color: #555; padding: 8px; 
             border-radius: 50%; transition: background 0.2s;
@@ -73,11 +82,10 @@
 
         /* --- 照片區域 --- */
         .photo-controls { display: flex; gap: 10px; margin-bottom: 10px; }
-        .btn-half { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem;}
+        .btn-half { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem;}
         .btn-cam { background-color: #ffc107; color: #333; }
         .btn-gallery { background-color: #fd7e14; }
 
-        /* 預覽框通用樣式 */
         .preview-box { 
             width: 100%; background: #f0fff0; border: 2px solid var(--frame-color);
             border-radius: 8px; display: flex; align-items: center; justify-content: center; 
@@ -86,14 +94,12 @@
         }
         .preview-box img { width: 100%; height: 100%; object-fit: contain; display: none; }
         
-        /* 只有大框框可以點擊 */
-        #main-preview-container { cursor: pointer; }
+        #main-preview-container { cursor: pointer; margin-bottom: 10px; }
         #main-preview-container:active { opacity: 0.8; }
         
-        /* 小框框禁止點擊樣式 */
         .sub-box { cursor: default; background: #e9ecef; border-color: #ccc; }
-        .sub-box::after { border-color: #ccc !important; background: none !important; } /* 移除小框的裝飾線 */
-
+        
+        /* Aspect Ratios */
         .ratio-4-3 { aspect-ratio: 4/3; }
         .ratio-16-9 { aspect-ratio: 16/9; }
         .ratio-9-16 { aspect-ratio: 9/16; }
@@ -104,27 +110,22 @@
         .img-label { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.5); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; pointer-events: none; }
         .placeholder { color: #555; text-align: center; font-size: 0.85em; font-weight: 500; }
 
-        /* 暫存按鈕 */
-        .btn-push {
-            width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px;
-            background-color: var(--push-btn-color); color: white; font-weight: bold; font-size: 1rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
-        }
-        .btn-push:active { transform: scale(0.98); }
-
         #sub-photos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* --- 下拉選單 (尺寸) --- */
-        .select-wrapper { margin-bottom: 15px; }
-        .size-select { width: 100%; padding: 12px; font-size: 1.1rem; border: 2px solid #ccc; border-radius: 8px; outline: none; background: white; font-weight: bold; color: #333; }
-        .size-select:focus { border-color: var(--primary-color); }
+        /* --- 輸入欄位 (件數, 顏色, 尺寸) --- */
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 0; }
+        
+        .form-input { 
+            width: 100%; padding: 12px; font-size: 1.1rem; border: 2px solid #ccc; 
+            border-radius: 8px; outline: none; background: white; font-weight: bold; color: #333; 
+        }
+        .form-input:focus { border-color: var(--primary-color); }
 
         /* --- 備註與語音 --- */
-        textarea { width: 100%; height: 150px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; resize: none; font-family: inherit; }
+        textarea { width: 100%; height: 120px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 16px; resize: none; font-family: inherit; }
         textarea:focus { border-color: var(--primary-color); outline: none; }
 
-        /* 動畫 CSS */
+        /* 動畫 */
         @keyframes flash-red { 0% { border-color: #eee; background-color: white; } 50% { border-color: red; background-color: #fff0f0; } 100% { border-color: #eee; background-color: white; } }
         @keyframes flash-green { 0% { border-color: #eee; } 50% { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.3); } 100% { border-color: #eee; } }
         @keyframes flash-purple { 0% { border-color: #eee; } 50% { border-color: #a020f0; background-color: #fcf0ff; } 100% { border-color: #eee; } }
@@ -137,12 +138,12 @@
         .lang-timer-container { display: flex; justify-content: space-between; align-items: center; }
         .small-select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 15px; font-size: 0.8rem; background: white; }
         
-        .btn-voice { width: 100%; height: 50px; border: none; border-radius: 12px; background-color: #17a2b8; color: white; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; }
+        .btn-voice { width: 100%; height: 45px; border: none; border-radius: 8px; background-color: #17a2b8; color: white; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; }
         .btn-voice.recording { background-color: var(--danger-color); animation: pulse 1s infinite; }
 
-        /* --- 底部按鈕 --- */
+        /* --- 底部按鈕 (英文) --- */
         .footer-btns-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .btn-main { padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; min-height: 80px; }
+        .btn-main { padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center; min-height: 80px; }
         .btn-save { background-color: var(--primary-color); grid-column: 1 / 2; }
         .btn-view { background-color: #6c757d; grid-column: 2 / 3; }
         .btn-drive { background-color: var(--drive-color); grid-column: 1 / -1; flex-direction: row; min-height: 50px;}
@@ -153,7 +154,8 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
         
-        .option-manager { border: 1px solid #eee; padding: 10px; border-radius: 6px; max-height: 150px; overflow-y: auto; margin-top: 5px; }
+        /* 選項管理 (Size/Color) */
+        .option-manager { border: 1px solid #eee; padding: 10px; border-radius: 6px; max-height: 120px; overflow-y: auto; margin-top: 5px; }
         .option-item { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #f9f9f9; }
         .btn-del-opt { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.8rem; }
         .add-opt-group { display: flex; gap: 5px; margin-top: 5px; }
@@ -190,7 +192,7 @@
 
         <div class="left-column">
             <div class="card">
-                <span class="section-title">1. Photos (Max 5)</span>
+                <span class="section-title">1. Photos (Auto Push, Max 5)</span>
                 <div class="photo-controls">
                     <button class="btn-half btn-cam" onclick="triggerCam()">📷 Camera</button>
                     <button class="btn-half btn-gallery" onclick="triggerGallery()">🖼️ Gallery</button>
@@ -198,36 +200,16 @@
                 
                 <div id="main-preview-container" class="preview-box ratio-4-3" onclick="triggerCam()">
                     <div class="ratio-tag" id="ratio-display-tag">Ratio: 4:3</div>
-                    <div class="img-label">Current (Last)</div>
-                    <span class="placeholder" id="ph-0">Click to Take Photo<br>(點擊拍照)</span>
+                    <div class="img-label">Current</div>
+                    <span class="placeholder" id="ph-0">Take Photo<br>(Auto Push)</span>
                     <img id="preview-img-0">
                 </div>
 
-                <button class="btn-push" onclick="pushToHistory()">
-                    ⬇️ Push to List (暫存/推入下方)
-                </button>
-
                 <div id="sub-photos-grid">
-                    <div class="preview-box ratio-4-3 sub-box">
-                        <div class="img-label">#1</div>
-                        <span class="placeholder" id="ph-1">History 1</span>
-                        <img id="preview-img-1">
-                    </div>
-                    <div class="preview-box ratio-4-3 sub-box">
-                        <div class="img-label">#2</div>
-                        <span class="placeholder" id="ph-2">History 2</span>
-                        <img id="preview-img-2">
-                    </div>
-                    <div class="preview-box ratio-4-3 sub-box">
-                        <div class="img-label">#3</div>
-                        <span class="placeholder" id="ph-3">History 3</span>
-                        <img id="preview-img-3">
-                    </div>
-                    <div class="preview-box ratio-4-3 sub-box">
-                        <div class="img-label">#4</div>
-                        <span class="placeholder" id="ph-4">History 4</span>
-                        <img id="preview-img-4">
-                    </div>
+                    <div class="preview-box ratio-4-3 sub-box"><div class="img-label">#1</div><span class="placeholder" id="ph-1">History 1</span><img id="preview-img-1"></div>
+                    <div class="preview-box ratio-4-3 sub-box"><div class="img-label">#2</div><span class="placeholder" id="ph-2">History 2</span><img id="preview-img-2"></div>
+                    <div class="preview-box ratio-4-3 sub-box"><div class="img-label">#3</div><span class="placeholder" id="ph-3">History 3</span><img id="preview-img-3"></div>
+                    <div class="preview-box ratio-4-3 sub-box"><div class="img-label">#4</div><span class="placeholder" id="ph-4">History 4</span><img id="preview-img-4"></div>
                 </div>
                 
                 <input type="file" id="input-cam" accept="image/*" capture="environment" class="hidden" onchange="handleFile(this)">
@@ -238,14 +220,26 @@
         <div class="right-column">
             
             <div class="card">
-                <span class="section-title">2. Size Selection (尺寸)</span>
-                <div class="select-wrapper">
-                    <select id="size-select" class="size-select"></select>
+                <span class="section-title">2. Details (詳細資訊)</span>
+                <div class="input-row">
+                    <div>
+                        <label style="display:block;margin-bottom:5px;font-size:0.9em;color:#666;">Quantity (件數)</label>
+                        <input type="number" id="qty-input" class="form-input" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="display:block;margin-bottom:5px;font-size:0.9em;color:#666;">Color (顏色)</label>
+                        <select id="color-select" class="form-input"></select>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
-                <span class="section-title">3. Note (文字/語音)</span>
+                <span class="section-title">3. Size (尺寸)</span>
+                <select id="size-select" class="form-input"></select>
+            </div>
+
+            <div class="card">
+                <span class="section-title">4. Note (備註)</span>
                 <textarea id="noteInput" placeholder="Type here or use voice..."></textarea>
                 
                 <div class="voice-copy-controls">
@@ -256,6 +250,7 @@
                                 <option value="cmn-Hant-TW">中文</option>
                                 <option value="en-US">English</option>
                                 <option value="ja-JP">日本語</option>
+                                <option value="hi-IN">Hindi (印地)</option>
                             </select>
                         </div>
                         <div style="font-weight:bold; color:#555;">Time: <span id="display-timeout" style="color:#d63384;">10</span>s</div>
@@ -266,8 +261,8 @@
 
             <div class="footer-btns-grid">
                 <button class="btn-main btn-save" id="saveBtn" onclick="saveToCloud()">💾<br>Save</button>
-                <button class="btn-main btn-view" onclick="viewExcel()">📊<br>View Excel</button>
-                <button class="btn-main btn-drive" onclick="viewDriveFolder()">📂 View Drive Photos</button>
+                <button class="btn-main btn-view" onclick="viewExcel()">📊<br>Excel</button>
+                <button class="btn-main btn-drive" onclick="viewDriveFolder()">📂 Photos</button>
             </div>
         </div>
     </div>
@@ -275,18 +270,26 @@
     <div id="settings-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Settings (設定)</h3>
+                <h3>Settings</h3>
                 <button onclick="closeSettings()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
             </div>
             
             <div class="modal-group">
-                <label>1. Google Drive Folder ID (資料夾 ID)</label>
-                <input type="text" id="set-folder-id" class="modal-input" placeholder="Enter Folder ID here">
-                <div style="font-size:0.8em; color:#666; margin-top:3px;">* 預設: 1f0F1CQlzztz551hdLVEyON4gR2KFs3m3</div>
+                <label>Folder ID</label>
+                <input type="text" id="set-folder-id" class="modal-input" placeholder="Enter Folder ID">
             </div>
 
             <div class="modal-group">
-                <label>2. Size Options (管理尺寸選項)</label>
+                <label>Color Options (顏色設定)</label>
+                <div class="option-manager"><div id="color-options-list"></div></div>
+                <div class="add-opt-group">
+                    <input type="text" id="new-color-input" class="modal-input" placeholder="New Color" style="flex:1;">
+                    <button class="btn-add-opt" onclick="addColorOption()">Add</button>
+                </div>
+            </div>
+
+            <div class="modal-group">
+                <label>Size Options (尺寸設定)</label>
                 <div class="option-manager"><div id="size-options-list"></div></div>
                 <div class="add-opt-group">
                     <input type="text" id="new-size-input" class="modal-input" placeholder="New Size" style="flex:1;">
@@ -295,18 +298,18 @@
             </div>
 
             <div class="modal-group">
-                <label>3. Voice Timeout (錄音秒數)</label>
+                <label>Voice Timeout</label>
                 <input type="number" id="set-timeout" class="modal-input" value="10">
             </div>
 
             <div class="modal-group">
-                <label>4. Photo Ratio (比例)</label>
+                <label>Photo Ratio</label>
                 <select id="set-ratio" class="modal-input">
                     <option value="4/3">4:3</option>
                     <option value="16/9">16:9</option>
                     <option value="9/16">9:16 (Vertical)</option>
                     <option value="1/1">1:1</option>
-                    <option value="FULL">FULL (Original)</option>
+                    <option value="FULL">FULL</option>
                 </select>
             </div>
 
@@ -320,83 +323,54 @@
     const FIXED_SHEET_ID = "1Bc6rFBxtUPiE6J835Xt5Eq9PoVtceFi0FlTUbY9a7oc/edit?gid=0#gid=0"; 
     const DEFAULT_FOLDER_ID = "1f0F1CQlzztz551hdLVEyON4gR2KFs3m3";
     const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL", "3XL"];
+    const DEFAULT_COLORS = ["Red", "Blue", "Black", "White", "Green", "Yellow"];
 
-    // 儲存邏輯: 
-    // Index 0 = Main Frame (暫存區/最後一張)
-    // Index 1 = History 1 (最新的歷史)
-    // Index 2 = History 2
-    // Index 3 = History 3
-    // Index 4 = History 4 (最舊的歷史)
+    // 圖片陣列 (Index 0 = 最新, Index 4 = 最舊)
     let storedImages = [null, null, null, null, null];
     
     let recognition;
     let isRecording = false;
     let countdownInterval, punctuationTimer;
     let timeLeft = 0;
+    
     let sizeOptions = [];
+    let colorOptions = [];
 
     window.onload = function() {
         const savedFolderId = localStorage.getItem("cfg_folderId");
         if (!savedFolderId) localStorage.setItem("cfg_folderId", DEFAULT_FOLDER_ID);
 
+        // Load Sizes
         const savedSizes = localStorage.getItem("cfg_sizes");
         if (savedSizes) sizeOptions = JSON.parse(savedSizes);
-        else {
-            sizeOptions = [...DEFAULT_SIZES];
-            localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
-        }
+        else { sizeOptions = [...DEFAULT_SIZES]; localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions)); }
 
-        renderSizeDropdown();
+        // Load Colors
+        const savedColors = localStorage.getItem("cfg_colors");
+        if (savedColors) colorOptions = JSON.parse(savedColors);
+        else { colorOptions = [...DEFAULT_COLORS]; localStorage.setItem("cfg_colors", JSON.stringify(colorOptions)); }
+
+        renderDropdowns();
         loadSettingsToUI();
         applySettings();
     };
 
     // ================= UI UPDATE =================
     function updatePhotoUI() {
-        // 更新所有圖片框
         for(let i=0; i<5; i++) {
             const imgEl = document.getElementById(`preview-img-${i}`);
             const phEl = document.getElementById(`ph-${i}`);
-            
             if (storedImages[i]) {
-                imgEl.src = storedImages[i];
-                imgEl.style.display = 'block';
+                imgEl.src = storedImages[i]; imgEl.style.display = 'block';
                 if(phEl) phEl.style.display = 'none';
-                
-                // 如果是 FULL 模式，調整容器比例
-                const ratio = localStorage.getItem("cfg_ratio") || "4/3";
-                if(ratio === "FULL") {
-                    // 這裡簡單處理，實際可以根據 image width/height 調整
-                    // 但因為 storedImages 只有 base64，無法立即得知原始比例，
-                    // 若需要嚴格比例，需在 processCanvas 時紀錄
-                }
             } else {
-                imgEl.src = "";
-                imgEl.style.display = 'none';
+                imgEl.src = ""; imgEl.style.display = 'none';
                 if(phEl) phEl.style.display = 'block';
             }
         }
     }
 
-    // ================= PUSH LOGIC (暫存) =================
-    function pushToHistory() {
-        if (!storedImages[0]) {
-            alert("Main photo is empty! (主畫面沒有照片)");
-            return;
-        }
-
-        // 陣列位移邏輯: 把歷史往下推 (FIFO or LIFO)
-        // 這裡採用: 1->2, 2->3, 3->4. 0->1.
-        storedImages[4] = storedImages[3];
-        storedImages[3] = storedImages[2];
-        storedImages[2] = storedImages[1];
-        storedImages[1] = storedImages[0];
-        storedImages[0] = null; // 清空主畫面以便拍下一張
-
-        updatePhotoUI();
-    }
-
-    // ================= IMAGE CAPTURE (Only Index 0) =================
+    // ================= IMAGE CAPTURE (AUTO FIFO) =================
     function triggerCam() { document.getElementById('input-cam').click(); }
     function triggerGallery() { document.getElementById('input-gallery').click(); }
     
@@ -451,8 +425,10 @@
         
         const base64 = canvas.toDataURL('image/jpeg', 0.8);
         
-        // 永遠只更新 Index 0 (主畫面)
-        storedImages[0] = base64;
+        // FIFO Logic: Remove last (oldest), Add new to front
+        storedImages.pop(); // 移除最後一個 (Index 4)
+        storedImages.unshift(base64); // 新增到最前 (Index 0)
+        
         updatePhotoUI();
 
         if(isFull) {
@@ -462,13 +438,12 @@
     }
 
     // ================= SETTINGS LOGIC =================
-    function openSettings() { loadSettingsToUI(); renderOptionListInSettings(); document.getElementById('settings-modal').style.display = 'flex'; }
+    function openSettings() { loadSettingsToUI(); renderOptionManager(); document.getElementById('settings-modal').style.display = 'flex'; }
     function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
     function saveSettings() {
         localStorage.setItem("cfg_timeout", document.getElementById('set-timeout').value);
         localStorage.setItem("cfg_ratio", document.getElementById('set-ratio').value);
-        const fid = document.getElementById('set-folder-id').value.trim();
-        localStorage.setItem("cfg_folderId", fid || DEFAULT_FOLDER_ID);
+        localStorage.setItem("cfg_folderId", document.getElementById('set-folder-id').value.trim() || DEFAULT_FOLDER_ID);
         alert("Settings Saved!"); closeSettings(); applySettings();
     }
     function loadSettingsToUI() {
@@ -486,7 +461,6 @@
             container.style.aspectRatio = "";
             container.className = "preview-box";
             if(container.id !== "main-preview-container") container.classList.add("sub-box");
-            
             if(ratio === "4/3") container.classList.add("ratio-4-3");
             else if(ratio === "16/9") container.classList.add("ratio-16-9");
             else if(ratio === "9/16") container.classList.add("ratio-9-16");
@@ -496,30 +470,56 @@
         document.getElementById('ratio-display-tag').innerText = "Ratio: " + (ratio==="FULL"?"Full":ratio.replace("/",":"));
     }
 
-    // ================= SIZE OPTIONS =================
-    function renderSizeDropdown() {
-        const select = document.getElementById('size-select'); select.innerHTML = "";
-        sizeOptions.forEach(size => { let opt = document.createElement('option'); opt.value = size; opt.innerText = size; select.appendChild(opt); });
+    // ================= OPTION MANAGERS (SIZE & COLOR) =================
+    function renderDropdowns() {
+        // Render Size
+        const sizeSel = document.getElementById('size-select'); sizeSel.innerHTML = "";
+        sizeOptions.forEach(s => { let o = document.createElement('option'); o.value = s; o.innerText = s; sizeSel.appendChild(o); });
+        // Render Color
+        const colSel = document.getElementById('color-select'); colSel.innerHTML = "";
+        colorOptions.forEach(c => { let o = document.createElement('option'); o.value = c; o.innerText = c; colSel.appendChild(o); });
     }
-    function renderOptionListInSettings() {
-        const container = document.getElementById('size-options-list'); container.innerHTML = "";
-        sizeOptions.forEach((size, index) => {
+
+    function renderOptionManager() {
+        // Manage Size
+        const sizeList = document.getElementById('size-options-list'); sizeList.innerHTML = "";
+        sizeOptions.forEach((s, i) => {
             let div = document.createElement('div'); div.className = "option-item";
-            div.innerHTML = `<span>${size}</span> <button class="btn-del-opt" onclick="deleteSizeOption(${index})">Delete</button>`;
-            container.appendChild(div);
+            div.innerHTML = `<span>${s}</span> <button class="btn-del-opt" onclick="deleteOption('size', ${i})">Del</button>`;
+            sizeList.appendChild(div);
+        });
+        // Manage Color
+        const colorList = document.getElementById('color-options-list'); colorList.innerHTML = "";
+        colorOptions.forEach((c, i) => {
+            let div = document.createElement('div'); div.className = "option-item";
+            div.innerHTML = `<span>${c}</span> <button class="btn-del-opt" onclick="deleteOption('color', ${i})">Del</button>`;
+            colorList.appendChild(div);
         });
     }
+
     function addSizeOption() {
         const val = document.getElementById('new-size-input').value.trim().toUpperCase();
         if(val && !sizeOptions.includes(val)) {
             sizeOptions.push(val); localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
-            renderOptionListInSettings(); renderSizeDropdown(); document.getElementById('new-size-input').value = "";
+            renderOptionManager(); renderDropdowns(); document.getElementById('new-size-input').value = "";
         }
     }
-    function deleteSizeOption(index) {
+    function addColorOption() {
+        const val = document.getElementById('new-color-input').value.trim();
+        if(val && !colorOptions.includes(val)) {
+            colorOptions.push(val); localStorage.setItem("cfg_colors", JSON.stringify(colorOptions));
+            renderOptionManager(); renderDropdowns(); document.getElementById('new-color-input').value = "";
+        }
+    }
+
+    function deleteOption(type, index) {
         if(confirm("Delete?")) {
-            sizeOptions.splice(index, 1); localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
-            renderOptionListInSettings(); renderSizeDropdown();
+            if(type === 'size') {
+                sizeOptions.splice(index, 1); localStorage.setItem("cfg_sizes", JSON.stringify(sizeOptions));
+            } else {
+                colorOptions.splice(index, 1); localStorage.setItem("cfg_colors", JSON.stringify(colorOptions));
+            }
+            renderOptionManager(); renderDropdowns();
         }
     }
 
@@ -562,8 +562,7 @@
         document.getElementById('noteInput').value = val;
     }
     function syncLanguage(src) { 
-        if (src === 'main') document.getElementById('set-lang').value = document.getElementById('main-lang').value;
-        else document.getElementById('main-lang').value = document.getElementById('set-lang').value;
+        // Sync logic if needed
     }
 
     // ================= CLOUD =================
@@ -581,9 +580,10 @@
     function saveToCloud() {
         const note = document.getElementById('noteInput').value;
         const size = document.getElementById('size-select').value;
+        const color = document.getElementById('color-select').value;
+        const qty = document.getElementById('qty-input').value;
         const folderId = localStorage.getItem("cfg_folderId") || DEFAULT_FOLDER_ID;
 
-        // 檢查是否有任何照片 (Main 或是 History 中有都算)
         if(!storedImages.some(x=>x) && !note) { alert("Empty!"); return; }
 
         showStatus('loading', 'Uploading...', 'Please wait...');
@@ -593,17 +593,20 @@
             method: 'POST',
             body: JSON.stringify({ 
                 note: note, 
-                images: storedImages, // 傳送整個陣列 (Index 0 是最新的)
+                images: storedImages,
                 folderId: folderId, 
-                size: size 
+                size: size,
+                color: color,
+                quantity: qty
             })
         })
         .then(r => r.json())
         .then(() => {
             showStatus('success', 'Done!', 'Upload Successful');
             document.getElementById('noteInput').value = "";
+            document.getElementById('qty-input').value = "";
             storedImages = [null,null,null,null,null];
-            updatePhotoUI(); // 重置圖片介面
+            updatePhotoUI();
         })
         .catch(e => showStatus('error', 'Error', 'Upload Failed'))
         .finally(() => btn.disabled = false);
